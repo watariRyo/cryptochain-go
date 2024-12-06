@@ -8,21 +8,13 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-type MockTimeProvider struct {
-	MockTime time.Time
-}
-
-func (m *MockTimeProvider) Now() time.Time {
-	return m.MockTime
-}
-
 func TestCreateNewBlock(t *testing.T) {
 	timestamp := time.Now()
 	hash := "test_hash"
 	lastHash := "test_last_hash"
 	data := "test_data"
 
-	block := NewBlock(timestamp, lastHash, hash, data)
+	block := newBlock(timestamp, lastHash, hash, data)
 
 	if block.Timestamp != timestamp {
 		t.Errorf("expected %s, got %s", timestamp, block.Timestamp)
@@ -39,7 +31,7 @@ func TestCreateNewBlock(t *testing.T) {
 }
 
 func TestGenesisBlock(t *testing.T) {
-	got := *NewGenesisBlock()
+	got := *newGenesisBlock()
 	genesis := newGenesis()
 
 	want := Block{
@@ -55,7 +47,7 @@ func TestGenesisBlock(t *testing.T) {
 }
 
 func TestMineBlock(t *testing.T) {
-	lastBlock := NewGenesisBlock()
+	lastBlock := newGenesisBlock()
 	data := "mined data"
 
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)

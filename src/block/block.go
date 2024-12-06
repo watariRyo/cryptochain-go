@@ -11,7 +11,7 @@ type Block struct {
 	Data      string
 }
 
-func NewBlock(timestamp time.Time, lastHash, hash string, data string) *Block {
+func newBlock(timestamp time.Time, lastHash, hash string, data string) *Block {
 	return &Block{
 		Timestamp: timestamp,
 		LastHash:  lastHash,
@@ -20,9 +20,9 @@ func NewBlock(timestamp time.Time, lastHash, hash string, data string) *Block {
 	}
 }
 
-func NewGenesisBlock() *Block {
+func newGenesisBlock() *Block {
 	gen := newGenesis()
-	return NewBlock(gen.timestamp, gen.lastHash, gen.hash, gen.data)
+	return newBlock(gen.timestamp, gen.lastHash, gen.hash, gen.data)
 }
 
 func MineBlock(lastBlock *Block, data string, timestamp time.Time) *Block {
