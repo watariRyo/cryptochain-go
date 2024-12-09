@@ -92,8 +92,6 @@ func TestMatchDifficultyCriteria(t *testing.T) {
 
 	mineBlock := MineBlock(lastBlock, data, mockProvider)
 
-	println(mineBlock.Hash)
-
 	want := strings.Repeat("0", difficulty)
 	got := mineBlock.Hash[:difficulty]
 
