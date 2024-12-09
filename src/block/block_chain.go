@@ -2,6 +2,7 @@ package block
 
 import (
 	"context"
+	"math"
 	"reflect"
 	"strconv"
 
@@ -14,8 +15,8 @@ type BlockChain struct {
 	Block []*Block
 }
 
-func NewBlockChain(ctx context.Context) *BlockChain {
-	genesis := newGenesisBlock()
+func NewBlockChain(ctx context.Context, tp tm.TimeProvider) *BlockChain {
+	genesis := newGenesisBlock(tp.Now())
 	blockChain := &BlockChain{
 		ctx:   ctx,
 		Block: []*Block{genesis},
@@ -32,12 +33,13 @@ func (bc *BlockChain) AddBlock(data string, tm tm.TimeProvider) {
 }
 
 func (bc *BlockChain) IsValidChain() bool {
-	genesis := newGenesisBlock()
+	genesis := newGenesisBlock(bc.Block[0].Timestamp)
 	if !reflect.DeepEqual(bc.Block[0], genesis) {
 		return false
 	}
 
 	actualLastHash := genesis.Hash
+	lastDifficulty := genesis.Difficulty
 	for _, block := range bc.Block[1:] {
 		if actualLastHash != block.LastHash {
 			return false
@@ -48,7 +50,11 @@ func (bc *BlockChain) IsValidChain() bool {
 		if block.Hash != validatedHash {
 			return false
 		}
+		if math.Abs(float64(lastDifficulty-difficulty)) > 1 {
+			return false
+		}
 		actualLastHash = block.Hash
+		lastDifficulty = block.Difficulty
 	}
 
 	return true

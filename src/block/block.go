@@ -1,6 +1,7 @@
 package block
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -28,24 +29,32 @@ func newBlock(timestamp time.Time, lastHash, hash, data string, nonce, difficult
 	}
 }
 
-func newGenesisBlock() *Block {
-	gen := newGenesis()
+func newGenesisBlock(timestamp time.Time) *Block {
+	gen := newGenesis(timestamp)
 	return newBlock(gen.timestamp, gen.lastHash, gen.hash, gen.data, gen.nonce, gen.difficulty)
 }
 
 func MineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
-	difficulty := lastBlock.Difficulty
 	nonce := 0
-	want := strings.Repeat("0", difficulty)
 
+	difficulty := lastBlock.Difficulty
 	var hash string
 	var timestamp time.Time
 
 	for {
 		nonce++
 		timestamp = tp.Now()
+		difficulty = adjustDifficulty(lastBlock, timestamp)
 		hash = cryptoHash(timestamp.String(), strconv.Itoa(nonce), strconv.Itoa(difficulty), lastBlock.Hash, data)
-		if hash[:difficulty] == want {
+		want := strings.Repeat("0", difficulty)
+
+		binary := ""
+		for _, char := range hash {
+			value := charToBinary(char)
+			binary += fmt.Sprintf("%04b", value)
+		}
+
+		if binary[:difficulty] == want {
 			break
 		}
 	}
@@ -58,4 +67,20 @@ func MineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
 		Data:       data,
 		Hash:       hash,
 	}
+}
+
+func adjustDifficulty(originalBlock *Block, timestamp time.Time) int {
+	difficulty := originalBlock.Difficulty
+
+	if difficulty < 1 {
+		return 1
+	}
+
+	difference := timestamp.Sub(originalBlock.Timestamp)
+
+	if difference > MINE_RATE {
+		return difficulty - 1
+	}
+
+	return difficulty + 1
 }

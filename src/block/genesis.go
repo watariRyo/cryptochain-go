@@ -2,6 +2,7 @@ package block
 
 import "time"
 
+const MINE_RATE = time.Duration(1 * time.Second)
 const INITIAL_DIFFICULTY = 3
 
 type genesisBlock struct {
@@ -13,9 +14,9 @@ type genesisBlock struct {
 	data       string
 }
 
-func newGenesis() *genesisBlock {
+func newGenesis(timesamp time.Time) *genesisBlock {
 	return &genesisBlock{
-		timestamp:  time.Date(2000, time.January, 1, 0, 0, 0, 0, time.Now().Location()),
+		timestamp:  timesamp,
 		lastHash:   "____",
 		hash:       "hash-one",
 		difficulty: INITIAL_DIFFICULTY,

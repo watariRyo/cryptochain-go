@@ -1,6 +1,8 @@
 package block
 
 import (
+	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -41,8 +43,9 @@ func TestCreateNewBlock(t *testing.T) {
 }
 
 func TestGenesisBlock(t *testing.T) {
-	got := *newGenesisBlock()
-	genesis := newGenesis()
+	timestamp := time.Now()
+	got := *newGenesisBlock(timestamp)
+	genesis := newGenesis(timestamp)
 
 	want := Block{
 		Timestamp:  genesis.timestamp,
@@ -59,13 +62,13 @@ func TestGenesisBlock(t *testing.T) {
 }
 
 func TestMineBlock(t *testing.T) {
-	lastBlock := newGenesisBlock()
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	lastBlock := newGenesisBlock(mockTimeProvider.Now())
 	data := "mined data"
 
-	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
-	mockProvider := &MockTimeProvider{MockTime: mockTime}
-
-	mineBlock := MineBlock(lastBlock, data, mockProvider)
+	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
 
 	if mineBlock.LastHash != lastBlock.Hash {
 		t.Errorf("LastHash and Hash are mismatched. lastHash = %v, hash %v", mineBlock.LastHash, lastBlock.Hash)
@@ -83,19 +86,77 @@ func TestMineBlock(t *testing.T) {
 }
 
 func TestMatchDifficultyCriteria(t *testing.T) {
-	lastBlock := newGenesisBlock()
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	lastBlock := newGenesisBlock(mockTimeProvider.Now())
 	data := "mined data"
 	difficulty := 1
 
-	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
-	mockProvider := &MockTimeProvider{MockTime: mockTime}
+	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
 
-	mineBlock := MineBlock(lastBlock, data, mockProvider)
+	binary := ""
+	for _, char := range mineBlock.Hash {
+		value := charToBinary(char)
+		binary += fmt.Sprintf("%04b", value)
+	}
 
 	want := strings.Repeat("0", difficulty)
-	got := mineBlock.Hash[:difficulty]
+	got := binary[:difficulty]
 
 	if got != want {
 		t.Errorf("expected %s, got %s", want, got)
+	}
+}
+
+func TestAdjustDifficulty(t *testing.T) {
+	data := "mined data"
+
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	lastBlock := newGenesisBlock(mockTimeProvider.Now())
+	lastBlock.Difficulty = 3
+
+	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
+
+	raiseTimestamp := mineBlock.Timestamp.Add(time.Duration(-1 * time.Second))
+
+	// raise the difficulty
+	newDifficulty := adjustDifficulty(mineBlock, raiseTimestamp)
+	if newDifficulty != mineBlock.Difficulty+1 {
+		t.Errorf("Expected difficulty to be raised to %d, got %d", newDifficulty, mineBlock.Difficulty+1)
+	}
+	// lowers the difficulty
+	lowersTimestamp := mineBlock.Timestamp.Add(time.Duration(2 * time.Second))
+
+	newDifficulty = adjustDifficulty(mineBlock, lowersTimestamp)
+	if newDifficulty != mineBlock.Difficulty-1 {
+		t.Errorf("Expected difficulty to be lowers to %d, got %d", newDifficulty, mineBlock.Difficulty-1)
+	}
+
+	// adjust the difficulty in mineBlock
+	possibleResults := []int{lastBlock.Difficulty + 1, lastBlock.Difficulty - 1}
+
+	if !slices.Contains(possibleResults, mineBlock.Difficulty) {
+		t.Errorf("mineBlock.Difficulty should be adjusted.")
+	}
+}
+
+func TestAdjustDifficultyLowerLimit(t *testing.T) {
+	data := "mined data"
+
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	lastBlock := newGenesisBlock(mockTimeProvider.Now())
+	lastBlock.Difficulty = 1
+
+	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
+	mineBlock.Difficulty = -1
+
+	got := adjustDifficulty(mineBlock, mockTimeProvider.Now())
+	if got != 1 {
+		t.Errorf("difficulty should be limited to 1, got %v", got)
 	}
 }
