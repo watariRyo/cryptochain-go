@@ -3,9 +3,10 @@ package block
 import (
 	"context"
 	"reflect"
-	"time"
+	"strconv"
 
 	"github.com/watariRyo/cryptochain-go/src/logger"
+	tm "github.com/watariRyo/cryptochain-go/src/time"
 )
 
 type BlockChain struct {
@@ -23,9 +24,9 @@ func NewBlockChain(ctx context.Context) *BlockChain {
 	return blockChain
 }
 
-func (bc *BlockChain) AddBlock(data string, timestamp time.Time) {
+func (bc *BlockChain) AddBlock(data string, tm tm.TimeProvider) {
 	lastBlock := bc.Block[len(bc.Block)-1]
-	addBlock := MineBlock(lastBlock, data, timestamp)
+	addBlock := MineBlock(lastBlock, data, tm)
 
 	bc.Block = append(bc.Block, addBlock)
 }
@@ -41,7 +42,9 @@ func (bc *BlockChain) IsValidChain() bool {
 		if actualLastHash != block.LastHash {
 			return false
 		}
-		validatedHash := cryptoHash(block.Timestamp.String(), block.LastHash, block.Data)
+		nonce := block.Nonce
+		difficulty := block.Difficulty
+		validatedHash := cryptoHash(block.Timestamp.String(), strconv.Itoa(nonce), strconv.Itoa(difficulty), block.LastHash, block.Data)
 		if block.Hash != validatedHash {
 			return false
 		}
