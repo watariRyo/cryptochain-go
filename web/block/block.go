@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	tm "github.com/watariRyo/cryptochain-go/src/time"
+	tm "github.com/watariRyo/cryptochain-go/internal/time"
 )
 
 type Block struct {

@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/watariRyo/cryptochain-go/src/logger"
-	tm "github.com/watariRyo/cryptochain-go/src/time"
+	"github.com/watariRyo/cryptochain-go/internal/logger"
+	tm "github.com/watariRyo/cryptochain-go/internal/time"
 )
 
 type BlockChain struct {

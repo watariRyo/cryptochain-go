@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile-go
+    image: cryptochain-go:1.0
+    container_name: cryptochain-server
+    command: "air -c .air.toml"
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    environment:
+      EXEC_MODE: "docker"
+    networks:
+      - cryptochain
+
+networks:
+  cryptochain:
+    driver: bridge

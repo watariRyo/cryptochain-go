@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	tm "github.com/watariRyo/cryptochain-go/src/time"
+	tm "github.com/watariRyo/cryptochain-go/internal/time"
 )
 
 func TestChainStartWithGenesis(t *testing.T) {

@@ -1,0 +1,12 @@
+FROM golang:1.23-alpine
+
+ENV ROOT=/app
+
+WORKDIR ${ROOT}
+
+COPY . .
+
+RUN go install github.com/air-verse/air@latest
+RUN go mod download && go mod verify
+
+RUN apk add --no-cache alpine-sdk
