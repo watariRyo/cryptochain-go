@@ -10,10 +10,11 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	tm "github.com/watariRyo/cryptochain-go/internal/time"
 )
 
 func TestCreateNewBlock(t *testing.T) {
-	timestamp := time.Now()
+	timestamp := tm.MicroParseString(time.Now())
 	hash := "test_hash"
 	lastHash := "test_last_hash"
 	data := "test_data"
@@ -43,7 +44,7 @@ func TestCreateNewBlock(t *testing.T) {
 }
 
 func TestGenesisBlock(t *testing.T) {
-	timestamp := time.Now()
+	timestamp := tm.MicroParseString(time.Now())
 	got := *newGenesisBlock(timestamp)
 	genesis := newGenesis(timestamp)
 
@@ -65,7 +66,7 @@ func TestMineBlock(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
-	lastBlock := newGenesisBlock(mockTimeProvider.Now())
+	lastBlock := newGenesisBlock(mockTimeProvider.NowMicroString())
 	data := "mined data"
 
 	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
@@ -76,10 +77,10 @@ func TestMineBlock(t *testing.T) {
 	if mineBlock.Data != data {
 		t.Errorf("mineBlock.Data and data are mismatched. mineBlock.Data = %v, data = %v", mineBlock.Data, data)
 	}
-	if mineBlock.Timestamp != mockTime {
-		t.Errorf("mineBlock.Timestamp and timestamp are mismatched. mineBlock.Timestamp = %v, timestamp = %v", mineBlock.Timestamp, mockTime)
+	if mineBlock.Timestamp != mockTimeProvider.NowMicroString() {
+		t.Errorf("mineBlock.Timestamp and timestamp are mismatched. mineBlock.Timestamp = %v, timestamp = %v", mineBlock.Timestamp, mockTimeProvider.NowMicroString())
 	}
-	hashExpected := cryptoHash(mineBlock.Timestamp.String(), strconv.Itoa(mineBlock.Nonce), strconv.Itoa(mineBlock.Difficulty), lastBlock.Hash, data)
+	hashExpected := cryptoHash(mineBlock.Timestamp, strconv.Itoa(mineBlock.Nonce), strconv.Itoa(mineBlock.Difficulty), lastBlock.Hash, data)
 	if mineBlock.Hash != hashExpected {
 		t.Errorf("mineBlock.Hash and expected are mismatched. mineBlock.Hash = %v, hash = %v", mineBlock.Hash, hashExpected)
 	}
@@ -89,7 +90,7 @@ func TestMatchDifficultyCriteria(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
-	lastBlock := newGenesisBlock(mockTimeProvider.Now())
+	lastBlock := newGenesisBlock(mockTimeProvider.NowMicroString())
 	data := "mined data"
 	difficulty := 1
 
@@ -115,12 +116,14 @@ func TestAdjustDifficulty(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
-	lastBlock := newGenesisBlock(mockTimeProvider.Now())
+	lastBlock := newGenesisBlock(mockTimeProvider.NowMicroString())
 	lastBlock.Difficulty = 3
 
 	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
 
-	raiseTimestamp := mineBlock.Timestamp.Add(time.Duration(-1 * time.Second))
+	mineTimestamp, _ := tm.MicroParse(mineBlock.Timestamp)
+
+	raiseTimestamp := mineTimestamp.Add(time.Duration(-1 * time.Second))
 
 	// raise the difficulty
 	newDifficulty := adjustDifficulty(mineBlock, raiseTimestamp)
@@ -128,7 +131,9 @@ func TestAdjustDifficulty(t *testing.T) {
 		t.Errorf("Expected difficulty to be raised to %d, got %d", newDifficulty, mineBlock.Difficulty+1)
 	}
 	// lowers the difficulty
-	lowersTimestamp := mineBlock.Timestamp.Add(time.Duration(2 * time.Second))
+	mineTimestamp, _ = tm.MicroParse(mineBlock.Timestamp)
+
+	lowersTimestamp := mineTimestamp.Add(time.Duration(2 * time.Second))
 
 	newDifficulty = adjustDifficulty(mineBlock, lowersTimestamp)
 	if newDifficulty != mineBlock.Difficulty-1 {
@@ -149,7 +154,7 @@ func TestAdjustDifficultyLowerLimit(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
-	lastBlock := newGenesisBlock(mockTimeProvider.Now())
+	lastBlock := newGenesisBlock(mockTimeProvider.NowMicroString())
 	lastBlock.Difficulty = 1
 
 	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)

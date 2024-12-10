@@ -1,0 +1,10 @@
+env: develop
+host: 0.0.0.0:8080
+server:
+  port: 8080
+  corsOrigins: "http://localhost:5173,http://localhost:8080,https://localhost:3443"
+redis:
+  host: redis
+  port: 6379
+  password: ""
+  key: "my-tasktree"

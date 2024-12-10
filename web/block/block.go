@@ -10,7 +10,7 @@ import (
 )
 
 type Block struct {
-	Timestamp  time.Time
+	Timestamp  string
 	LastHash   string
 	Hash       string
 	Difficulty int
@@ -18,7 +18,7 @@ type Block struct {
 	Data       string
 }
 
-func newBlock(timestamp time.Time, lastHash, hash, data string, nonce, difficulty int) *Block {
+func newBlock(timestamp string, lastHash, hash, data string, nonce, difficulty int) *Block {
 	return &Block{
 		Timestamp:  timestamp,
 		LastHash:   lastHash,
@@ -29,7 +29,7 @@ func newBlock(timestamp time.Time, lastHash, hash, data string, nonce, difficult
 	}
 }
 
-func newGenesisBlock(timestamp time.Time) *Block {
+func newGenesisBlock(timestamp string) *Block {
 	gen := newGenesis(timestamp)
 	return newBlock(gen.timestamp, gen.lastHash, gen.hash, gen.data, gen.nonce, gen.difficulty)
 }
@@ -39,13 +39,13 @@ func MineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
 
 	difficulty := lastBlock.Difficulty
 	var hash string
-	var timestamp time.Time
-
+	var timestampStr string
 	for {
 		nonce++
-		timestamp = tp.Now()
+		timestampStr = tp.NowMicroString()
+		timestamp, _ := tm.MicroParse(timestampStr)
 		difficulty = adjustDifficulty(lastBlock, timestamp)
-		hash = cryptoHash(timestamp.String(), strconv.Itoa(nonce), strconv.Itoa(difficulty), lastBlock.Hash, data)
+		hash = cryptoHash(timestampStr, strconv.Itoa(nonce), strconv.Itoa(difficulty), lastBlock.Hash, data)
 		want := strings.Repeat("0", difficulty)
 
 		binary := ""
@@ -60,7 +60,7 @@ func MineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
 	}
 
 	return &Block{
-		Timestamp:  timestamp,
+		Timestamp:  timestampStr,
 		LastHash:   lastBlock.Hash,
 		Difficulty: difficulty,
 		Nonce:      nonce,
@@ -76,7 +76,9 @@ func adjustDifficulty(originalBlock *Block, timestamp time.Time) int {
 		return 1
 	}
 
-	difference := timestamp.Sub(originalBlock.Timestamp)
+	parseTime, _ := tm.MicroParse(originalBlock.Timestamp)
+
+	difference := timestamp.Sub(parseTime)
 
 	if difference > MINE_RATE {
 		return difficulty - 1

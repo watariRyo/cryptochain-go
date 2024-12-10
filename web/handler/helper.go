@@ -13,6 +13,10 @@ type jsonResponse struct {
 	Data    any    `json:"data`
 }
 
+type payload struct {
+	Data string `json:"data"`
+}
+
 func (handler *Handler) readJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	maxBytes := 1048576 // one megabyte
 

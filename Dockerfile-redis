@@ -1,0 +1,9 @@
+FROM        ubuntu:14.04
+
+RUN         apt-get update && apt-get install -y redis-server
+
+EXPOSE      6379
+
+COPY redis/redis.conf /usr/local/etc/redis/redis.conf
+
+CMD [ "/usr/bin/redis-server", "/usr/local/etc/redis/redis.conf" ]

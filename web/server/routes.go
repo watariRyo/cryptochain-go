@@ -23,6 +23,7 @@ func (server *Server) Routes() http.Handler {
 	mux.Use(middleware.Heartbeat("/ping"))
 
 	mux.Get("/api/blocks", server.Handler.GetBlocks)
+	mux.Post("/api/mine", server.Handler.Mine)
 
 	return mux
 }

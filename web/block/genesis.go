@@ -6,7 +6,7 @@ const MINE_RATE = time.Duration(1 * time.Second)
 const INITIAL_DIFFICULTY = 3
 
 type genesisBlock struct {
-	timestamp  time.Time
+	timestamp  string
 	lastHash   string
 	hash       string
 	difficulty int
@@ -14,7 +14,7 @@ type genesisBlock struct {
 	data       string
 }
 
-func newGenesis(timesamp time.Time) *genesisBlock {
+func newGenesis(timesamp string) *genesisBlock {
 	return &genesisBlock{
 		timestamp:  timesamp,
 		lastHash:   "____",
