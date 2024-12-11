@@ -2,8 +2,6 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/watariRyo/cryptochain-go/configs"
@@ -27,7 +25,7 @@ type RedisClientInterface interface {
 // PubSubのインスタンスがアプリケーションで両方の役割を果たせるようにするため
 type RedisClient struct {
 	publisher  *redis.Client
-	subscriber *redis.Client
+	subscriber *redis.PubSub
 	blockChain *block.BlockChain
 }
 
@@ -38,14 +36,9 @@ func NewRedisClient(cfg *configs.Redis, ctx context.Context, blockChain *block.B
 	if err != nil {
 		return nil, err
 	}
-	sub, err := createRedisClient(cfg, ctx)
-	if err != nil {
-		return nil, err
-	}
 
 	redisClient := &RedisClient{
 		publisher:  pub,
-		subscriber: sub,
 		blockChain: blockChain,
 	}
 
@@ -71,35 +64,26 @@ func createRedisClient(cfg *configs.Redis, ctx context.Context) (*redis.Client, 
 
 func (c *RedisClient) subscribe(ctx context.Context) {
 	// チャネルをサブスクライブ
-	pubsub := c.subscriber.Subscribe(ctx, channels...)
+	c.subscriber = c.publisher.Subscribe(ctx, channels...)
 
 	// メッセージを受信
 	go func(pubsub *redis.PubSub) {
-		ch := pubsub.Channel()
-		defer pubsub.Close()
+		ch := c.subscriber.Channel()
+		defer c.subscriber.Close()
 
 		for msg := range ch {
 			if BLOCKCHAIN == CHANNELS(msg.Channel) {
 				payload := []byte(msg.Payload)
-				var payloadBlock []*block.Block
-				if err := json.Unmarshal(payload, &payloadBlock); err != nil {
-					logger.Errorf(c.blockChain.Ctx, "Could not unmarshal block chain. %v", err)
-				}
-				subscribeChain := &block.BlockChain{
-					Ctx:   context.TODO(),
-					Block: payloadBlock,
-				}
-				c.blockChain.ReplaceChain(subscribeChain)
-
-				broadcastChain, _ := json.Marshal(c.blockChain.Block)
-				fmt.Println(string(broadcastChain))
+				c.blockChain.UnmarshalAndReplaceBlock(payload)
 			}
 		}
-	}(pubsub)
+	}(c.subscriber)
 }
 
 func (c *RedisClient) Publish(ctx context.Context, channel, messages string) {
+	c.subscriber.Unsubscribe(c.blockChain.Ctx, channel)
 	err := c.publisher.Publish(ctx, channel, messages).Err()
+	c.subscriber.Subscribe(c.blockChain.Ctx, channel)
 	if err != nil {
 		logger.Errorf(c.blockChain.Ctx, "Error publishing message: %v\n", err)
 		return

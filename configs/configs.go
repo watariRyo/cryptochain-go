@@ -25,6 +25,7 @@ type (
 	}
 
 	Server struct {
+		DefaultPort string `yaml:"defaultPort"`
 		Port        string `yaml:"port"`
 		CorsOrigins string `yaml:"corsOrigins"`
 	}

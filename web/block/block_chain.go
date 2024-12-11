@@ -2,6 +2,7 @@ package block
 
 import (
 	"context"
+	"encoding/json"
 	"math"
 	"reflect"
 	"strconv"
@@ -77,4 +78,16 @@ func (bc *BlockChain) ReplaceChain(chain *BlockChain) {
 	}
 
 	bc.Block = chain.Block
+}
+
+func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte) {
+	var payloadBlock []*Block
+	if err := json.Unmarshal(payload, &payloadBlock); err != nil {
+		logger.Errorf(bc.Ctx, "Could not unmarshal block chain. %v", err)
+	}
+	subscribeChain := &BlockChain{
+		Ctx:   bc.Ctx,
+		Block: payloadBlock,
+	}
+	bc.ReplaceChain(subscribeChain)
 }

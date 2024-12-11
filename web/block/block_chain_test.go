@@ -180,5 +180,45 @@ func TestReplaceChain(t *testing.T) {
 				t.Errorf("Chain should be replaced.")
 			}
 		})
+
+		t.Run("when the chain is valid replace the chain from byte array.", func(t *testing.T) {
+			blockChain := NewBlockChain(context.Background(), mockTimeProvider)
+			newChain := `
+[
+	{
+		"Timestamp": "2024-12-11T06:18:29.851186Z",
+		"LastHash": "____",
+		"Hash": "hash-one",
+		"Difficulty": 3,
+		"Nonce": 0,
+		"Data": "{ \"one\": \"one\" }"
+	},
+	{
+		"Timestamp": "2024-12-11T06:18:41.054109Z",
+		"LastHash": "hash-one",
+		"Hash": "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d",
+		"Difficulty": 2,
+		"Nonce": 5,
+		"Data": "hoge7"
+	},
+	{
+		"Timestamp": "2024-12-11T06:18:46.045773Z",
+		"LastHash": "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d",
+		"Hash": "17d5667d15847f6b8613c1b6fddb254446065054f1f06e693a97ef9b56fdbca1",
+		"Difficulty": 1,
+		"Nonce": 2,
+		"Data": "hoge7"
+	}
+]`
+
+			blockChain.UnmarshalAndReplaceBlock([]byte(newChain))
+
+			if blockChain.Block[1].Hash != "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d" {
+				t.Errorf("Chain should be replaced.")
+			}
+			if blockChain.Block[2].Hash != "17d5667d15847f6b8613c1b6fddb254446065054f1f06e693a97ef9b56fdbca1" {
+				t.Errorf("Chain should be replaced.")
+			}
+		})
 	})
 }
