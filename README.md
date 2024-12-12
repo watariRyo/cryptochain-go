@@ -1,14 +1,37 @@
 # Goによるブロックチェーン基盤作成
 
+- Done
+  - 簡易なBlock, Chainの実装
+  - handler
+  - P2P実現のためのPubSub
+  - コンテナ仮想化
+- TODO
+  - Wallet
+  - Keys、署名
+　- Transaction, Transaction Pool
+  - Frontend by React
+
 ## スタック
 
 | 名前 | Version | 概要 |
 | --- | --- | --- |
 | Go | 1.23 | 開発言語 |
-| go-chi | v5.1 | [middleware](github.com/go-chi/chi/v5) |
-| zerolog | 1.33 | [Logger](github.com/rs/zerolog) |
+| go-chi | v5.1 | [middleware](https://github.com/go-chi/chi/v5) |
+| zerolog | 1.33 | [Logger](https://github.com/rs/zerolog) |
+| viper | 1.19 | [config管理](https://github.com/spf13/viper) |
+| Redis | - | P2P、PubSubに使用 |
+| Docker | - | コンテナ仮想化 |
+| air | - | HOTリロード |
 
 ## ディレクトリ
+
+### cmd
+
+- エントリ
+
+### configs
+
+- 環境変数の設定、他Config
 
 ### internal/logger
 
@@ -18,6 +41,10 @@
 
 - タイムスタンプを扱うinterface。
 - テスト用のMockと通常運用とで分けるため
+
+### redis
+
+- Redisの設定ファイル等
 
 ### web/blcok
 
@@ -34,6 +61,10 @@
 ### web/handler
 
 - API受け口, 実装別だし未定
+
+### web/redis
+
+- PubSub実装
 
 ### web/server
 
