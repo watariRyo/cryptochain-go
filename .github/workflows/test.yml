@@ -1,0 +1,26 @@
+name: Test
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    branches:
+      - develop
+      - release
+      - main
+    paths: ['**/*.go']
+  push:
+    branches:
+      - develop
+      - release
+      - main
+    paths: ['**/*.go']
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5 
+        with:
+          go-version: '1.23'
+      - run: go test -cover ./... -count=1 # カバレッジとキャッシュ無効化（ベンチマークを１回走らせる）
