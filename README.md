@@ -8,7 +8,7 @@
 - TODO
   - Wallet
   - Keys、署名
-　- Transaction, Transaction Pool
+  - Transaction, Transaction Pool
   - Frontend by React
 
 ## スタック
