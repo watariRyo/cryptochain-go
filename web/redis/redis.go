@@ -19,6 +19,8 @@ const (
 var channels = []string{string(TEST), string(BLOCKCHAIN)}
 
 type RedisClientInterface interface {
+	Subscribe(ctx context.Context)
+	Publish(ctx context.Context, channel, messages string)
 }
 
 // パブリッシャーとサブスクライバーの両方を宣言する理由は、
@@ -42,7 +44,7 @@ func NewRedisClient(cfg *configs.Redis, ctx context.Context, blockChain *block.B
 		blockChain: blockChain,
 	}
 
-	redisClient.subscribe(ctx)
+	redisClient.Subscribe(ctx)
 
 	return redisClient, nil
 }
@@ -62,7 +64,7 @@ func createRedisClient(cfg *configs.Redis, ctx context.Context) (*redis.Client, 
 	return client, nil
 }
 
-func (c *RedisClient) subscribe(ctx context.Context) {
+func (c *RedisClient) Subscribe(ctx context.Context) {
 	// チャネルをサブスクライブ
 	c.subscriber = c.publisher.Subscribe(ctx, channels...)
 

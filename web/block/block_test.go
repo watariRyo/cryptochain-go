@@ -69,7 +69,7 @@ func TestMineBlock(t *testing.T) {
 	lastBlock := newGenesisBlock(mockTimeProvider.NowMicroString())
 	data := "mined data"
 
-	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
+	mineBlock := mineBlock(lastBlock, data, mockTimeProvider)
 
 	if mineBlock.LastHash != lastBlock.Hash {
 		t.Errorf("LastHash and Hash are mismatched. lastHash = %v, hash %v", mineBlock.LastHash, lastBlock.Hash)
@@ -94,7 +94,7 @@ func TestMatchDifficultyCriteria(t *testing.T) {
 	data := "mined data"
 	difficulty := 1
 
-	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
+	mineBlock := mineBlock(lastBlock, data, mockTimeProvider)
 
 	binary := ""
 	for _, char := range mineBlock.Hash {
@@ -119,7 +119,7 @@ func TestAdjustDifficulty(t *testing.T) {
 	lastBlock := newGenesisBlock(mockTimeProvider.NowMicroString())
 	lastBlock.Difficulty = 3
 
-	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
+	mineBlock := mineBlock(lastBlock, data, mockTimeProvider)
 
 	mineTimestamp, _ := tm.MicroParse(mineBlock.Timestamp)
 
@@ -157,7 +157,7 @@ func TestAdjustDifficultyLowerLimit(t *testing.T) {
 	lastBlock := newGenesisBlock(mockTimeProvider.NowMicroString())
 	lastBlock.Difficulty = 1
 
-	mineBlock := MineBlock(lastBlock, data, mockTimeProvider)
+	mineBlock := mineBlock(lastBlock, data, mockTimeProvider)
 	mineBlock.Difficulty = -1
 
 	got := adjustDifficulty(mineBlock, mockTimeProvider.Now())

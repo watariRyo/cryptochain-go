@@ -14,36 +14,50 @@ import (
 type BlockChain struct {
 	Ctx          context.Context
 	TimeProvider *tm.RealTimeProvider
-	Block        []*Block
+	block        []*Block
 }
+
+type BlockChainInterface interface {
+	AddBlock(data string)
+	GetBlock() []*Block
+	IsValidChain() bool
+	ReplaceChain(chain *BlockChain)
+	UnmarshalAndReplaceBlock(payload []byte)
+}
+
+var _ BlockChainInterface = (*BlockChain)(nil)
 
 func NewBlockChain(ctx context.Context, tp tm.TimeProvider) *BlockChain {
 	genesis := newGenesisBlock(tp.NowMicroString())
 	blockChain := &BlockChain{
 		Ctx:   ctx,
-		Block: []*Block{genesis},
+		block: []*Block{genesis},
 	}
 
 	return blockChain
 }
 
 func (bc *BlockChain) AddBlock(data string) {
-	lastBlock := bc.Block[len(bc.Block)-1]
-	addBlock := MineBlock(lastBlock, data, bc.TimeProvider)
+	lastBlock := bc.block[len(bc.block)-1]
+	addBlock := mineBlock(lastBlock, data, bc.TimeProvider)
 
-	bc.Block = append(bc.Block, addBlock)
+	bc.block = append(bc.block, addBlock)
+}
+
+func (bc *BlockChain) GetBlock() []*Block {
+	return bc.block
 }
 
 func (bc *BlockChain) IsValidChain() bool {
-	genesis := newGenesisBlock(bc.Block[0].Timestamp)
-	if !reflect.DeepEqual(bc.Block[0], genesis) {
+	genesis := newGenesisBlock(bc.block[0].Timestamp)
+	if !reflect.DeepEqual(bc.block[0], genesis) {
 		logger.Debugf(bc.Ctx, "genesis")
 		return false
 	}
 
 	actualLastHash := genesis.Hash
 	lastDifficulty := genesis.Difficulty
-	for _, block := range bc.Block[1:] {
+	for _, block := range bc.block[1:] {
 		if actualLastHash != block.LastHash {
 			logger.Debugf(bc.Ctx, "lastHash")
 			return false
@@ -68,7 +82,7 @@ func (bc *BlockChain) IsValidChain() bool {
 }
 
 func (bc *BlockChain) ReplaceChain(chain *BlockChain) {
-	if len(chain.Block) <= len(bc.Block) {
+	if len(chain.block) <= len(bc.block) {
 		logger.Warnf(bc.Ctx, "The incoming chain must be longer.")
 		return
 	}
@@ -77,7 +91,7 @@ func (bc *BlockChain) ReplaceChain(chain *BlockChain) {
 		return
 	}
 
-	bc.Block = chain.Block
+	bc.block = chain.block
 }
 
 func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte) {
@@ -87,7 +101,7 @@ func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte) {
 	}
 	subscribeChain := &BlockChain{
 		Ctx:   bc.Ctx,
-		Block: payloadBlock,
+		block: payloadBlock,
 	}
 	bc.ReplaceChain(subscribeChain)
 }

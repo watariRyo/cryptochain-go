@@ -47,7 +47,7 @@ func Run() {
 	}
 
 	// init broadcast
-	broadcastChain, err := json.Marshal(blockChain.Block)
+	broadcastChain, err := json.Marshal(blockChain.GetBlock())
 	if err != nil {
 		log.Panic(err)
 	}

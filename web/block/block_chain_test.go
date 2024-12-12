@@ -20,7 +20,7 @@ func TestChainStartWithGenesis(t *testing.T) {
 
 	genesis := newGenesisBlock(mockProvider.NowMicroString())
 
-	if d := cmp.Diff(blockChain.Block[0], genesis); len(d) != 0 {
+	if d := cmp.Diff(blockChain.block[0], genesis); len(d) != 0 {
 		t.Errorf("differs: (-got +want)\n%s", d)
 	}
 }
@@ -33,12 +33,12 @@ func TestAddNewBlockChain(t *testing.T) {
 	blockChain := NewBlockChain(context.Background(), mockProvider)
 
 	blockChain.AddBlock(want)
-	got := blockChain.Block[len(blockChain.Block)-1].Data
+	got := blockChain.block[len(blockChain.block)-1].Data
 	if got != want {
 		t.Errorf("add block chain mismatch: got %v, want %v", got, want)
 	}
-	lastHashAddBlock := blockChain.Block[len(blockChain.Block)-1].LastHash
-	hashLastBlock := blockChain.Block[len(blockChain.Block)-2].Hash
+	lastHashAddBlock := blockChain.block[len(blockChain.block)-1].LastHash
+	hashLastBlock := blockChain.block[len(blockChain.block)-2].Hash
 	if lastHashAddBlock != hashLastBlock {
 		t.Errorf("add block chain hash mismatch: lastHashNowBlock %v, hashLastBlock %v", lastHashAddBlock, hashLastBlock)
 	}
@@ -50,7 +50,7 @@ func TestValidChain(t *testing.T) {
 		mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
 		blockChain := NewBlockChain(context.Background(), mockTimeProvider)
-		blockChain.Block[0].Data = `fake-genesis`
+		blockChain.block[0].Data = `fake-genesis`
 		isValidChain := blockChain.IsValidChain()
 		if isValidChain {
 			t.Errorf("When the chain does not start with the genesis block. isValidChain should be false.")
@@ -66,7 +66,7 @@ func TestValidChain(t *testing.T) {
 			blockChain.AddBlock(`{"data": "Bears"}`)
 			blockChain.AddBlock(`{"data": "Battlestar Galactica"}`)
 
-			blockChain.Block[2].LastHash = "broken-lastHash"
+			blockChain.block[2].LastHash = "broken-lastHash"
 
 			isValidChain := blockChain.IsValidChain()
 			if isValidChain {
@@ -80,7 +80,7 @@ func TestValidChain(t *testing.T) {
 			blockChain.AddBlock(`{"data": "Bears"}`)
 			blockChain.AddBlock(`{"data": "Battlestar Galactica"}`)
 
-			blockChain.Block[2].Data = "some-bad-and-evil-data"
+			blockChain.block[2].Data = "some-bad-and-evil-data"
 
 			isValidChain := blockChain.IsValidChain()
 			if isValidChain {
@@ -95,7 +95,7 @@ func TestValidChain(t *testing.T) {
 			blockChain.AddBlock(`{"data": "Bears"}`)
 			blockChain.AddBlock(`{"data": "Battlestar Galactica"}`)
 
-			lastBlock := blockChain.Block[len(blockChain.Block)-1]
+			lastBlock := blockChain.block[len(blockChain.block)-1]
 			lastHash := lastBlock.Hash
 
 			timestamp := realTimeProvider.NowMicroString()
@@ -106,7 +106,7 @@ func TestValidChain(t *testing.T) {
 			hash := cryptoHash(timestamp, lastHash, strconv.Itoa(difficulty), strconv.Itoa(nonce), data)
 			badBlock := newBlock(timestamp, lastHash, hash, data, nonce, difficulty)
 
-			blockChain.Block = append(blockChain.Block, badBlock)
+			blockChain.block = append(blockChain.block, badBlock)
 
 			if blockChain.IsValidChain() {
 				t.Errorf("should be invalid block chain")
@@ -132,14 +132,14 @@ func TestReplaceChain(t *testing.T) {
 		realTimeProvider := &tm.RealTimeProvider{}
 
 		blockChain := NewBlockChain(context.Background(), realTimeProvider)
-		originalChain := blockChain.Block
+		originalChain := blockChain.block
 		newChain := NewBlockChain(context.Background(), realTimeProvider)
 
-		newChain.Block[0].Data = `{ "new" : "new-chain" }`
+		newChain.block[0].Data = `{ "new" : "new-chain" }`
 
 		blockChain.ReplaceChain(newChain)
 
-		if blockChain.Block[0].Data != originalChain[0].Data {
+		if blockChain.block[0].Data != originalChain[0].Data {
 			t.Errorf("When the new chain is not longer. should not replace the chain")
 		}
 	})
@@ -150,18 +150,18 @@ func TestReplaceChain(t *testing.T) {
 		realTimeProvider := &tm.RealTimeProvider{}
 		t.Run("when the chain is invalid does not replace the chain.", func(t *testing.T) {
 			blockChain := NewBlockChain(context.Background(), mockTimeProvider)
-			originalChain := blockChain.Block
+			originalChain := blockChain.block
 			newChain := NewBlockChain(context.Background(), realTimeProvider)
 
 			newChain.AddBlock(`{"data": "Bears"}`)
 			newChain.AddBlock(`{"data": "Bears"}`)
 			newChain.AddBlock(`{"data": "Battlestar Galactica"}`)
 
-			newChain.Block[2].Hash = "some-fake-hash"
+			newChain.block[2].Hash = "some-fake-hash"
 
 			blockChain.ReplaceChain(newChain)
 
-			if !reflect.DeepEqual(blockChain.Block, originalChain) {
+			if !reflect.DeepEqual(blockChain.block, originalChain) {
 				t.Errorf("When the chain is invalid. should not replace the chain")
 			}
 		})
@@ -176,7 +176,7 @@ func TestReplaceChain(t *testing.T) {
 
 			blockChain.ReplaceChain(newChain)
 
-			if !reflect.DeepEqual(blockChain.Block[2], newChain.Block[2]) {
+			if !reflect.DeepEqual(blockChain.block[2], newChain.block[2]) {
 				t.Errorf("Chain should be replaced.")
 			}
 		})
@@ -213,10 +213,10 @@ func TestReplaceChain(t *testing.T) {
 
 			blockChain.UnmarshalAndReplaceBlock([]byte(newChain))
 
-			if blockChain.Block[1].Hash != "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d" {
+			if blockChain.block[1].Hash != "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d" {
 				t.Errorf("Chain should be replaced.")
 			}
-			if blockChain.Block[2].Hash != "17d5667d15847f6b8613c1b6fddb254446065054f1f06e693a97ef9b56fdbca1" {
+			if blockChain.block[2].Hash != "17d5667d15847f6b8613c1b6fddb254446065054f1f06e693a97ef9b56fdbca1" {
 				t.Errorf("Chain should be replaced.")
 			}
 		})

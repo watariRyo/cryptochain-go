@@ -13,13 +13,13 @@ import (
 )
 
 type Handler struct {
-	BlockChain  *block.BlockChain
-	RedisClient *redis.RedisClient
+	BlockChain  block.BlockChainInterface
+	RedisClient redis.RedisClientInterface
 	Configs     *configs.Config
 }
 
 func (handler *Handler) GetBlocks(w http.ResponseWriter, r *http.Request) {
-	handler.writeJSON(w, http.StatusOK, handler.BlockChain.Block)
+	handler.writeJSON(w, http.StatusOK, handler.BlockChain.GetBlock())
 }
 
 func (handler *Handler) Mine(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,7 @@ func (handler *Handler) Mine(w http.ResponseWriter, r *http.Request) {
 
 	handler.BlockChain.AddBlock(requestPayload.Data)
 
-	broadcastChain, err := json.Marshal(handler.BlockChain.Block)
+	broadcastChain, err := json.Marshal(handler.BlockChain.GetBlock())
 	if err != nil {
 		handler.errorJSON(w, err, http.StatusInternalServerError)
 		return

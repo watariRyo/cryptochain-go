@@ -34,7 +34,7 @@ func newGenesisBlock(timestamp string) *Block {
 	return newBlock(gen.timestamp, gen.lastHash, gen.hash, gen.data, gen.nonce, gen.difficulty)
 }
 
-func MineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
+func mineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
 	nonce := 0
 
 	difficulty := lastBlock.Difficulty
