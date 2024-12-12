@@ -8,18 +8,36 @@ import (
 	"net/http"
 
 	"github.com/watariRyo/cryptochain-go/configs"
-	"github.com/watariRyo/cryptochain-go/web/block"
-	"github.com/watariRyo/cryptochain-go/web/redis"
+	"github.com/watariRyo/cryptochain-go/web/infra/block"
+	"github.com/watariRyo/cryptochain-go/web/infra/redis"
 )
 
 type Handler struct {
-	BlockChain  block.BlockChainInterface
-	RedisClient redis.RedisClientInterface
-	Configs     *configs.Config
+	ctx         context.Context
+	blockChain  block.BlockChainInterface
+	redisClient redis.RedisClientInterface
+	configs     *configs.Config
+}
+
+type HandlerInterface interface {
+	GetBlocks(w http.ResponseWriter, r *http.Request)
+	Mine(w http.ResponseWriter, r *http.Request)
+	SyncChain() error
+}
+
+var _ HandlerInterface = (*Handler)(nil)
+
+func NewHandler(ctx context.Context, blockChain *block.BlockChain, redisClient *redis.RedisClient, configs *configs.Config) *Handler {
+	return &Handler{
+		ctx:         ctx,
+		blockChain:  blockChain,
+		redisClient: redisClient,
+		configs:     configs,
+	}
 }
 
 func (handler *Handler) GetBlocks(w http.ResponseWriter, r *http.Request) {
-	handler.writeJSON(w, http.StatusOK, handler.BlockChain.GetBlock())
+	handler.writeJSON(w, http.StatusOK, handler.blockChain.GetBlock())
 }
 
 func (handler *Handler) Mine(w http.ResponseWriter, r *http.Request) {
@@ -27,21 +45,21 @@ func (handler *Handler) Mine(w http.ResponseWriter, r *http.Request) {
 
 	handler.readJSON(w, r, &requestPayload)
 
-	handler.BlockChain.AddBlock(requestPayload.Data)
+	handler.blockChain.AddBlock(requestPayload.Data)
 
-	broadcastChain, err := json.Marshal(handler.BlockChain.GetBlock())
+	broadcastChain, err := json.Marshal(handler.blockChain.GetBlock())
 	if err != nil {
 		handler.errorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
-	go handler.RedisClient.Publish(context.TODO(), string(redis.BLOCKCHAIN), string(broadcastChain))
+	go handler.redisClient.Publish(handler.ctx, string(redis.BLOCKCHAIN), string(broadcastChain))
 
 	handler.GetBlocks(w, r)
 }
 
 func (handler *Handler) SyncChain() error {
 	// Route Node
-	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/blocks", handler.Configs.Host), nil)
+	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/blocks", handler.configs.Host), nil)
 	if err != nil {
 		return err
 	}
@@ -65,7 +83,7 @@ func (handler *Handler) SyncChain() error {
 		return err
 	}
 
-	handler.BlockChain.UnmarshalAndReplaceBlock(payload)
+	handler.blockChain.UnmarshalAndReplaceBlock(payload)
 
 	return nil
 }

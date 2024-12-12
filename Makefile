@@ -1,7 +1,7 @@
 # install
 GOMOCK_VERSION = v0.5.0
 
-go-install:
+install:
 	go install go.uber.org/mock/mockgen@${GOMOCK_VERSION}
 
 ifeq ($(OS), Windows_NT)
@@ -55,5 +55,11 @@ test: ## Launch tests
 	go test ./... ${TEST_FLAGS} -tags=${TEST_TAGS} -coverprofile=${COVER_PROFILE}
 
 mock:
-	mockgen -source ./web/block/block_chain.go -destination ./web/block/mock/block_chain.go -package block
-	mockgen -source ./web/redis/redis.go -destination ./web/redis/mock/redis.go -package redis
+	mockgen -source ./web/infra/block/block_chain.go -destination ./web/infra/block/mock/block_chain.go -package block
+	mockgen -source ./web/infra/redis/redis.go -destination ./web/redis/infra/mock/redis.go -package redis
+
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down

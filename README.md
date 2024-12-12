@@ -69,3 +69,10 @@
 ### web/server
 
 - RESTAPIの設定
+
+## Dependencies
+
+server -> handler -> (UseCase/domain)？ -> infra  
+
+redisがチェーン持っているのは避けたいが、pubsubの都合難しい、、、  
+blockをDBと同等とみなして同じ階層とした  

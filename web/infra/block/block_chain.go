@@ -12,7 +12,7 @@ import (
 )
 
 type BlockChain struct {
-	Ctx          context.Context
+	ctx          context.Context
 	TimeProvider *tm.RealTimeProvider
 	block        []*Block
 }
@@ -30,7 +30,7 @@ var _ BlockChainInterface = (*BlockChain)(nil)
 func NewBlockChain(ctx context.Context, tp tm.TimeProvider) *BlockChain {
 	genesis := newGenesisBlock(tp.NowMicroString())
 	blockChain := &BlockChain{
-		Ctx:   ctx,
+		ctx:   ctx,
 		block: []*Block{genesis},
 	}
 
@@ -51,7 +51,7 @@ func (bc *BlockChain) GetBlock() []*Block {
 func (bc *BlockChain) IsValidChain() bool {
 	genesis := newGenesisBlock(bc.block[0].Timestamp)
 	if !reflect.DeepEqual(bc.block[0], genesis) {
-		logger.Debugf(bc.Ctx, "genesis")
+		logger.Debugf(bc.ctx, "genesis")
 		return false
 	}
 
@@ -59,7 +59,7 @@ func (bc *BlockChain) IsValidChain() bool {
 	lastDifficulty := genesis.Difficulty
 	for _, block := range bc.block[1:] {
 		if actualLastHash != block.LastHash {
-			logger.Debugf(bc.Ctx, "lastHash")
+			logger.Debugf(bc.ctx, "lastHash")
 			return false
 		}
 		nonce := block.Nonce
@@ -67,11 +67,11 @@ func (bc *BlockChain) IsValidChain() bool {
 
 		validatedHash := cryptoHash(block.Timestamp, strconv.Itoa(nonce), strconv.Itoa(difficulty), block.LastHash, block.Data)
 		if block.Hash != validatedHash {
-			logger.Debugf(bc.Ctx, "hash")
+			logger.Debugf(bc.ctx, "hash")
 			return false
 		}
 		if math.Abs(float64(lastDifficulty-difficulty)) > 1 {
-			logger.Debugf(bc.Ctx, "difficulty")
+			logger.Debugf(bc.ctx, "difficulty")
 			return false
 		}
 		actualLastHash = block.Hash
@@ -83,11 +83,11 @@ func (bc *BlockChain) IsValidChain() bool {
 
 func (bc *BlockChain) ReplaceChain(chain *BlockChain) {
 	if len(chain.block) <= len(bc.block) {
-		logger.Warnf(bc.Ctx, "The incoming chain must be longer.")
+		logger.Warnf(bc.ctx, "The incoming chain must be longer.")
 		return
 	}
 	if !chain.IsValidChain() {
-		logger.Errorf(bc.Ctx, "The incoming chain must be valid.")
+		logger.Errorf(bc.ctx, "The incoming chain must be valid.")
 		return
 	}
 
@@ -97,10 +97,10 @@ func (bc *BlockChain) ReplaceChain(chain *BlockChain) {
 func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte) {
 	var payloadBlock []*Block
 	if err := json.Unmarshal(payload, &payloadBlock); err != nil {
-		logger.Errorf(bc.Ctx, "Could not unmarshal block chain. %v", err)
+		logger.Errorf(bc.ctx, "Could not unmarshal block chain. %v", err)
 	}
 	subscribeChain := &BlockChain{
-		Ctx:   bc.Ctx,
+		ctx:   bc.ctx,
 		block: payloadBlock,
 	}
 	bc.ReplaceChain(subscribeChain)

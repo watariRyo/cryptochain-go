@@ -9,14 +9,14 @@ import (
 
 	"github.com/watariRyo/cryptochain-go/configs"
 	"github.com/watariRyo/cryptochain-go/internal/time"
-	"github.com/watariRyo/cryptochain-go/web/block"
 	"github.com/watariRyo/cryptochain-go/web/handler"
-	"github.com/watariRyo/cryptochain-go/web/redis"
+	"github.com/watariRyo/cryptochain-go/web/infra/block"
+	"github.com/watariRyo/cryptochain-go/web/infra/redis"
 )
 
 type Server struct {
-	Ctx     context.Context
-	Handler *handler.Handler
+	ctx     context.Context
+	handler *handler.Handler
 }
 
 func Run() {
@@ -35,15 +35,11 @@ func Run() {
 	}
 
 	// dependencies
-	handler := &handler.Handler{
-		BlockChain:  blockChain,
-		RedisClient: redisClient,
-		Configs:     config,
-	}
+	handler := handler.NewHandler(ctx, blockChain, redisClient, config)
 
 	server := Server{
-		Ctx:     ctx,
-		Handler: handler,
+		ctx:     ctx,
+		handler: handler,
 	}
 
 	// init broadcast

@@ -6,7 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/watariRyo/cryptochain-go/configs"
 	"github.com/watariRyo/cryptochain-go/internal/logger"
-	"github.com/watariRyo/cryptochain-go/web/block"
+	"github.com/watariRyo/cryptochain-go/web/infra/block"
 )
 
 type CHANNELS string
@@ -26,6 +26,7 @@ type RedisClientInterface interface {
 // パブリッシャーとサブスクライバーの両方を宣言する理由は、
 // PubSubのインスタンスがアプリケーションで両方の役割を果たせるようにするため
 type RedisClient struct {
+	ctx        context.Context
 	publisher  *redis.Client
 	subscriber *redis.PubSub
 	blockChain *block.BlockChain
@@ -83,11 +84,11 @@ func (c *RedisClient) Subscribe(ctx context.Context) {
 }
 
 func (c *RedisClient) Publish(ctx context.Context, channel, messages string) {
-	c.subscriber.Unsubscribe(c.blockChain.Ctx, channel)
+	c.subscriber.Unsubscribe(c.ctx, channel)
 	err := c.publisher.Publish(ctx, channel, messages).Err()
-	c.subscriber.Subscribe(c.blockChain.Ctx, channel)
+	c.subscriber.Subscribe(c.ctx, channel)
 	if err != nil {
-		logger.Errorf(c.blockChain.Ctx, "Error publishing message: %v\n", err)
+		logger.Errorf(c.ctx, "Error publishing message: %v\n", err)
 		return
 	}
 }

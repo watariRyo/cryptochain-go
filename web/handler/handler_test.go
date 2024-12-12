@@ -7,10 +7,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/watariRyo/cryptochain-go/web/block"
-	mockBlock "github.com/watariRyo/cryptochain-go/web/block/mock"
-	"github.com/watariRyo/cryptochain-go/web/redis"
-	mockRedis "github.com/watariRyo/cryptochain-go/web/redis/mock"
+	"github.com/watariRyo/cryptochain-go/web/infra/block"
+	mockBlock "github.com/watariRyo/cryptochain-go/web/infra/block/mock"
+	"github.com/watariRyo/cryptochain-go/web/infra/redis"
+	mockRedis "github.com/watariRyo/cryptochain-go/web/infra/redis/mock"
 	"go.uber.org/mock/gomock"
 )
 
@@ -26,8 +26,8 @@ func Test_Mine(t *testing.T) {
 	mr.EXPECT().Publish(gomock.Any(), string(redis.BLOCKCHAIN), gomock.Any()).AnyTimes()
 
 	testHandler := &Handler{
-		BlockChain:  mb,
-		RedisClient: mr,
+		blockChain:  mb,
+		redisClient: mr,
 	}
 
 	postBody := map[string]interface{}{
