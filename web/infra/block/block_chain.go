@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/watariRyo/cryptochain-go/internal/crypto"
 	"github.com/watariRyo/cryptochain-go/internal/logger"
 	"github.com/watariRyo/cryptochain-go/internal/time"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
@@ -59,7 +60,7 @@ func (bc *BlockChain) IsValidChain() bool {
 		nonce := block.Nonce
 		difficulty := block.Difficulty
 
-		validatedHash := cryptoHash(block.Timestamp, strconv.Itoa(nonce), strconv.Itoa(difficulty), block.LastHash, block.Data)
+		validatedHash := crypto.CryptoHash(block.Timestamp, strconv.Itoa(nonce), strconv.Itoa(difficulty), block.LastHash, block.Data)
 		if block.Hash != validatedHash {
 			logger.Debugf(bc.ctx, "hash")
 			return false

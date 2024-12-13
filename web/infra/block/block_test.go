@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/watariRyo/cryptochain-go/internal/crypto"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
@@ -81,7 +82,7 @@ func TestMineBlock(t *testing.T) {
 	if mineBlock.Timestamp != mockTimeProvider.NowMicroString() {
 		t.Errorf("mineBlock.Timestamp and timestamp are mismatched. mineBlock.Timestamp = %v, timestamp = %v", mineBlock.Timestamp, mockTimeProvider.NowMicroString())
 	}
-	hashExpected := cryptoHash(mineBlock.Timestamp, strconv.Itoa(mineBlock.Nonce), strconv.Itoa(mineBlock.Difficulty), lastBlock.Hash, data)
+	hashExpected := crypto.CryptoHash(mineBlock.Timestamp, strconv.Itoa(mineBlock.Nonce), strconv.Itoa(mineBlock.Difficulty), lastBlock.Hash, data)
 	if mineBlock.Hash != hashExpected {
 		t.Errorf("mineBlock.Hash and expected are mismatched. mineBlock.Hash = %v, hash = %v", mineBlock.Hash, hashExpected)
 	}
@@ -99,7 +100,7 @@ func TestMatchDifficultyCriteria(t *testing.T) {
 
 	binary := ""
 	for _, char := range mineBlock.Hash {
-		value := charToBinary(char)
+		value := crypto.CharToBinary(char)
 		binary += fmt.Sprintf("%04b", value)
 	}
 

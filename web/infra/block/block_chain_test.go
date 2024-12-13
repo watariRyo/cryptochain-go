@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
+	"github.com/watariRyo/cryptochain-go/internal/crypto"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
 )
 
@@ -103,7 +104,7 @@ func TestValidChain(t *testing.T) {
 			data := `hoge`
 			difficulty := lastBlock.Difficulty - 3
 
-			hash := cryptoHash(timestamp, lastHash, strconv.Itoa(difficulty), strconv.Itoa(nonce), data)
+			hash := crypto.CryptoHash(timestamp, lastHash, strconv.Itoa(difficulty), strconv.Itoa(nonce), data)
 			badBlock := newBlock(timestamp, lastHash, hash, data, nonce, difficulty)
 
 			blockChain.block = append(blockChain.block, badBlock)

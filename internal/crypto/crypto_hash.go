@@ -1,4 +1,4 @@
-package block
+package crypto
 
 import (
 	"crypto/sha256"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func cryptoHash(inputs ...string) string {
+func CryptoHash(inputs ...string) string {
 	sort.SliceStable(inputs, func(i, j int) bool {
 		return inputs[i] < inputs[j]
 	})
@@ -17,7 +17,7 @@ func cryptoHash(inputs ...string) string {
 }
 
 // 16進文字を2進数に変換する
-func charToBinary(char rune) int {
+func CharToBinary(char rune) int {
 	if char >= '0' && char <= '9' {
 		return int(char - '0')
 	} else if char >= 'a' && char <= 'f' {

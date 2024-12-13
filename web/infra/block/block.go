@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/watariRyo/cryptochain-go/internal/crypto"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
@@ -39,12 +40,12 @@ func mineBlock(lastBlock *model.Block, data string, tp tm.TimeProvider) *model.B
 		timestampStr = tp.NowMicroString()
 		timestamp, _ := tm.MicroParse(timestampStr)
 		difficulty = adjustDifficulty(lastBlock, timestamp)
-		hash = cryptoHash(timestampStr, strconv.Itoa(nonce), strconv.Itoa(difficulty), lastBlock.Hash, data)
+		hash = crypto.CryptoHash(timestampStr, strconv.Itoa(nonce), strconv.Itoa(difficulty), lastBlock.Hash, data)
 		want := strings.Repeat("0", difficulty)
 
 		binary := ""
 		for _, char := range hash {
-			value := charToBinary(char)
+			value := crypto.CharToBinary(char)
 			binary += fmt.Sprintf("%04b", value)
 		}
 
