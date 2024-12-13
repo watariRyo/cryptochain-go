@@ -1,9 +1,9 @@
-# Goによるブロックチェーン基盤作成
+# Go によるブロックチェーン基盤作成
 
 - Done
-  - 簡易なBlock, Chainの実装
+  - 簡易な Block, Chain の実装
   - handler
-  - P2P実現のためのPubSub
+  - P2P 実現のための PubSub
   - コンテナ仮想化
 - TODO
   - Wallet
@@ -13,15 +13,15 @@
 
 ## スタック
 
-| 名前 | Version | 概要 |
-| --- | --- | --- |
-| Go | 1.23 | 開発言語 |
-| go-chi | v5.1 | [middleware](https://github.com/go-chi/chi/v5) |
-| zerolog | 1.33 | [Logger](https://github.com/rs/zerolog) |
-| viper | 1.19 | [config管理](https://github.com/spf13/viper) |
-| Redis | - | P2P、PubSubに使用 |
-| Docker | - | コンテナ仮想化 |
-| air | - | HOTリロード |
+| 名前    | Version | 概要                                           |
+| ------- | ------- | ---------------------------------------------- |
+| Go      | 1.23    | 開発言語                                       |
+| go-chi  | v5.1    | [middleware](https://github.com/go-chi/chi/v5) |
+| zerolog | 1.33    | [Logger](https://github.com/rs/zerolog)        |
+| viper   | 1.19    | [config 管理](https://github.com/spf13/viper)  |
+| Redis   | -       | P2P、PubSub に使用                             |
+| Docker  | -       | コンテナ仮想化                                 |
+| air     | -       | HOT リロード                                   |
 
 ## ディレクトリ
 
@@ -31,48 +31,60 @@
 
 ### configs
 
-- 環境変数の設定、他Config
+- 環境変数の設定、他 Config
 
 ### internal/logger
 
-- 共通logger
+- 共通 logger
 
 ### internal/time
 
-- タイムスタンプを扱うinterface。
-- テスト用のMockと通常運用とで分けるため
+- タイムスタンプを扱う interface。
+- テスト用の Mock と通常運用とで分けるため
 
 ### redis
 
-- Redisの設定ファイル等
+- Redis の設定ファイル等
 
-### web/blcok
+### web/domain/model
+
+- メソッド持たない構造体定義
+
+### web/domain/repository
+
+- infra 層の interface
+
+### web/infra/blcok
 
 - ブロックおよびチェーンの作成、追加、検証の実装を格納
   - block  
-  ブロックの定義、作成、検証、マイニング調整の実施
+    ブロックの定義、作成、検証、マイニング調整の実施
   - block_chain  
-  チェーンの管理、検証、チェーンへのブロック追加
+    チェーンの管理、検証、チェーンへのブロック追加
   - crypto_hash  
-  ハッシュ作成
+    ハッシュ作成
   - genesis  
-  ジェネシスブロックの作成
+    ジェネシスブロックの作成
+
+### web/infra/redis
+
+- PubSub 実装
 
 ### web/handler
 
-- API受け口, 実装別だし未定
-
-### web/redis
-
-- PubSub実装
+- API 受け口, json の marshal/unmarshal
 
 ### web/server
 
-- RESTAPIの設定
+- RESTAPI の設定
+
+### web/usecase
+
+- ブロック等に直接触れないロジック部
 
 ## Dependencies
 
-server -> handler -> (UseCase/domain)？ -> infra  
+server -> handler -> usecase -> repository -> infra
 
-redisがチェーン持っているのは避けたいが、pubsubの都合難しい、、、  
-blockをDBと同等とみなして同じ階層とした  
+redis がチェーン持っているのは避けたいが、pubsub の都合難しい、、、  
+block を DB と同等とみなして infra 層とした

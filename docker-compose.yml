@@ -1,12 +1,10 @@
-version: "3"
-
 services:
   backend-base: &backend-base
     build:
       context: ./
       dockerfile: Dockerfile-go
     image: cryptochain-go:1.0
-    command: "air -c .air.toml"
+    command: 'air -c .air.toml'
     volumes:
       - .:/app
     networks:
@@ -15,11 +13,11 @@ services:
     <<: *backend-base
     container_name: cryptochain-server-1
     expose:
-      - "8080"
+      - '8080'
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
-      EXEC_MODE: "docker"
+      EXEC_MODE: 'docker'
       SERVER_PORT: 8080
   backend-2:
     <<: *backend-base
@@ -27,12 +25,12 @@ services:
     depends_on:
       - backend-1
     expose:
-      - "8081"
+      - '8081'
     ports:
-      - "8081:8081"
+      - '8081:8081'
     environment:
       HOST: http://backend-1:8080
-      EXEC_MODE: "docker"
+      EXEC_MODE: 'docker'
       SERVER_PORT: 8081
   redis:
     build:
@@ -43,9 +41,9 @@ services:
     volumes:
       - ./redis/data:/data
     expose:
-      - "6379"
+      - '6379'
     ports:
-      - "6379:6379"
+      - '6379:6379'
     networks:
       - cryptochain
 

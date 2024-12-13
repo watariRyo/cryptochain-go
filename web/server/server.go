@@ -9,9 +9,11 @@ import (
 
 	"github.com/watariRyo/cryptochain-go/configs"
 	"github.com/watariRyo/cryptochain-go/internal/time"
+	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 	"github.com/watariRyo/cryptochain-go/web/handler"
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
 	"github.com/watariRyo/cryptochain-go/web/infra/redis"
+	"github.com/watariRyo/cryptochain-go/web/usecase"
 )
 
 type Server struct {
@@ -24,18 +26,22 @@ func Run() {
 	ctx := context.Background()
 	blockChain := block.NewBlockChain(ctx, realTimeProvider)
 
-	config, err := configs.Load()
+	configs, err := configs.Load()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	redisClient, err := redis.NewRedisClient(&config.Redis, ctx, blockChain)
+	redisClient, err := redis.NewRedisClient(&configs.Redis, ctx, blockChain, realTimeProvider)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	// dependencies
-	handler := handler.NewHandler(ctx, blockChain, redisClient, config)
+	repo := repository.NewRepository(redisClient, blockChain)
+
+	usecase := usecase.NewUseCase(ctx, realTimeProvider, repo, configs)
+
+	handler := handler.NewHandler(ctx, usecase, configs)
 
 	server := Server{
 		ctx:     ctx,
@@ -51,19 +57,19 @@ func Run() {
 	go redisClient.Publish(ctx, string(redis.BLOCKCHAIN), string(broadcastChain))
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", config.Server.Port),
+		Addr:    fmt.Sprintf(":%s", configs.Server.Port),
 		Handler: server.Routes(),
 	}
 
 	go func() {
-		if config.Server.DefaultPort != config.Server.Port {
-			err = handler.SyncChain()
+		if configs.Server.DefaultPort != configs.Server.Port {
+			err = usecase.SyncChain()
 			if err != nil {
 				log.Panic(err)
 			}
 		}
 
-		log.Println("Starting service on port", config.Server.Port)
+		log.Println("Starting service on port", configs.Server.Port)
 
 		err = srv.ListenAndServe()
 		if err != nil {

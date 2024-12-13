@@ -5,17 +5,9 @@ import (
 	"errors"
 	"io"
 	"net/http"
+
+	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
-
-type jsonResponse struct {
-	Error   bool   `json:"error"`
-	Message string `json:"message"`
-	Data    any    `json:"data`
-}
-
-type payload struct {
-	Data string `json:"data"`
-}
 
 func (handler *Handler) readJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	maxBytes := 1048576 // one megabyte
@@ -64,7 +56,7 @@ func (handler *Handler) errorJSON(w http.ResponseWriter, err error, status ...in
 		statusCode = status[0]
 	}
 
-	var payload jsonResponse
+	var payload model.JsonResponse
 	payload.Error = true
 	payload.Message = err.Error()
 

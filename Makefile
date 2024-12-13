@@ -55,8 +55,9 @@ test: ## Launch tests
 	go test ./... ${TEST_FLAGS} -tags=${TEST_TAGS} -coverprofile=${COVER_PROFILE}
 
 mock:
-	mockgen -source ./web/infra/block/block_chain.go -destination ./web/infra/block/mock/block_chain.go -package block
-	mockgen -source ./web/infra/redis/redis.go -destination ./web/redis/infra/mock/redis.go -package redis
+	mockgen -source ./web/domain/repository/block_chain.go -destination ./web/domain/repository/mock/block_chain.go -package repository
+	mockgen -source ./web/domain/repository/redis.go -destination ./web/domain/repository/mock/redis.go -package repository
+	mockgen -source ./web/usecase/usecase.go -destination ./web/usecase/mock/usecase.go -package usecase
 
 up:
 	docker-compose up -d

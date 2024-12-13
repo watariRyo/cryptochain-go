@@ -8,43 +8,37 @@ import (
 	"strconv"
 
 	"github.com/watariRyo/cryptochain-go/internal/logger"
+	"github.com/watariRyo/cryptochain-go/internal/time"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
+	"github.com/watariRyo/cryptochain-go/web/domain/model"
+	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 )
 
 type BlockChain struct {
 	ctx          context.Context
-	TimeProvider *tm.RealTimeProvider
-	block        []*Block
+	block        []*model.Block
 }
 
-type BlockChainInterface interface {
-	AddBlock(data string)
-	GetBlock() []*Block
-	IsValidChain() bool
-	ReplaceChain(chain *BlockChain)
-	UnmarshalAndReplaceBlock(payload []byte)
-}
-
-var _ BlockChainInterface = (*BlockChain)(nil)
+var _ repository.BlockChainInterface = (*BlockChain)(nil)
 
 func NewBlockChain(ctx context.Context, tp tm.TimeProvider) *BlockChain {
 	genesis := newGenesisBlock(tp.NowMicroString())
 	blockChain := &BlockChain{
 		ctx:   ctx,
-		block: []*Block{genesis},
+		block: []*model.Block{genesis},
 	}
 
 	return blockChain
 }
 
-func (bc *BlockChain) AddBlock(data string) {
+func (bc *BlockChain) AddBlock(data string, timeProvider tm.TimeProvider) {
 	lastBlock := bc.block[len(bc.block)-1]
-	addBlock := mineBlock(lastBlock, data, bc.TimeProvider)
+	addBlock := mineBlock(lastBlock, data, timeProvider)
 
 	bc.block = append(bc.block, addBlock)
 }
 
-func (bc *BlockChain) GetBlock() []*Block {
+func (bc *BlockChain) GetBlock() []*model.Block {
 	return bc.block
 }
 
@@ -81,21 +75,27 @@ func (bc *BlockChain) IsValidChain() bool {
 	return true
 }
 
-func (bc *BlockChain) ReplaceChain(chain *BlockChain) {
-	if len(chain.block) <= len(bc.block) {
+func (bc *BlockChain) ReplaceChain(block []*model.Block, tm time.TimeProvider) {
+	if len(block) <= len(bc.block) {
 		logger.Warnf(bc.ctx, "The incoming chain must be longer.")
 		return
 	}
-	if !chain.IsValidChain() {
+
+	checkChain := &BlockChain{
+		ctx: bc.ctx,
+		block: block,
+	}
+
+	if !checkChain.IsValidChain() {
 		logger.Errorf(bc.ctx, "The incoming chain must be valid.")
 		return
 	}
 
-	bc.block = chain.block
+	bc.block = block
 }
 
-func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte) {
-	var payloadBlock []*Block
+func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider) {
+	var payloadBlock []*model.Block
 	if err := json.Unmarshal(payload, &payloadBlock); err != nil {
 		logger.Errorf(bc.ctx, "Could not unmarshal block chain. %v", err)
 	}
@@ -103,5 +103,5 @@ func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte) {
 		ctx:   bc.ctx,
 		block: payloadBlock,
 	}
-	bc.ReplaceChain(subscribeChain)
+	bc.ReplaceChain(subscribeChain.block, tm)
 }

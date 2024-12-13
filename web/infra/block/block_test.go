@@ -11,6 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
+	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
 
 func TestCreateNewBlock(t *testing.T) {
@@ -48,7 +49,7 @@ func TestGenesisBlock(t *testing.T) {
 	got := *newGenesisBlock(timestamp)
 	genesis := newGenesis(timestamp)
 
-	want := Block{
+	want := model.Block{
 		Timestamp:  genesis.timestamp,
 		LastHash:   genesis.lastHash,
 		Hash:       genesis.hash,

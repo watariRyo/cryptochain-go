@@ -6,6 +6,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/watariRyo/cryptochain-go/configs"
 	"github.com/watariRyo/cryptochain-go/internal/logger"
+	"github.com/watariRyo/cryptochain-go/internal/time"
+	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
 )
 
@@ -18,11 +20,6 @@ const (
 
 var channels = []string{string(TEST), string(BLOCKCHAIN)}
 
-type RedisClientInterface interface {
-	Subscribe(ctx context.Context)
-	Publish(ctx context.Context, channel, messages string)
-}
-
 // パブリッシャーとサブスクライバーの両方を宣言する理由は、
 // PubSubのインスタンスがアプリケーションで両方の役割を果たせるようにするため
 type RedisClient struct {
@@ -32,9 +29,9 @@ type RedisClient struct {
 	blockChain *block.BlockChain
 }
 
-var _ RedisClientInterface = (*RedisClient)(nil)
+var _ repository.RedisClientInterface = (*RedisClient)(nil)
 
-func NewRedisClient(cfg *configs.Redis, ctx context.Context, blockChain *block.BlockChain) (*RedisClient, error) {
+func NewRedisClient(cfg *configs.Redis, ctx context.Context, blockChain *block.BlockChain, tm time.TimeProvider) (*RedisClient, error) {
 	pub, err := createRedisClient(cfg, ctx)
 	if err != nil {
 		return nil, err
@@ -45,7 +42,7 @@ func NewRedisClient(cfg *configs.Redis, ctx context.Context, blockChain *block.B
 		blockChain: blockChain,
 	}
 
-	redisClient.Subscribe(ctx)
+	redisClient.Subscribe(ctx, tm)
 
 	return redisClient, nil
 }
@@ -65,7 +62,7 @@ func createRedisClient(cfg *configs.Redis, ctx context.Context) (*redis.Client, 
 	return client, nil
 }
 
-func (c *RedisClient) Subscribe(ctx context.Context) {
+func (c *RedisClient) Subscribe(ctx context.Context, tm time.TimeProvider) {
 	// チャネルをサブスクライブ
 	c.subscriber = c.publisher.Subscribe(ctx, channels...)
 
@@ -77,7 +74,7 @@ func (c *RedisClient) Subscribe(ctx context.Context) {
 		for msg := range ch {
 			if BLOCKCHAIN == CHANNELS(msg.Channel) {
 				payload := []byte(msg.Payload)
-				c.blockChain.UnmarshalAndReplaceBlock(payload)
+				c.blockChain.UnmarshalAndReplaceBlock(payload, tm)
 			}
 		}
 	}(c.subscriber)

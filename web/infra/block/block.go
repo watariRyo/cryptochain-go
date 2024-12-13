@@ -7,19 +7,13 @@ import (
 	"time"
 
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
+	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
 
-type Block struct {
-	Timestamp  string
-	LastHash   string
-	Hash       string
-	Difficulty int
-	Nonce      int
-	Data       string
-}
 
-func newBlock(timestamp string, lastHash, hash, data string, nonce, difficulty int) *Block {
-	return &Block{
+
+func newBlock(timestamp string, lastHash, hash, data string, nonce, difficulty int) *model.Block {
+	return &model.Block {
 		Timestamp:  timestamp,
 		LastHash:   lastHash,
 		Hash:       hash,
@@ -29,12 +23,12 @@ func newBlock(timestamp string, lastHash, hash, data string, nonce, difficulty i
 	}
 }
 
-func newGenesisBlock(timestamp string) *Block {
+func newGenesisBlock(timestamp string) *model.Block {
 	gen := newGenesis(timestamp)
 	return newBlock(gen.timestamp, gen.lastHash, gen.hash, gen.data, gen.nonce, gen.difficulty)
 }
 
-func mineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
+func mineBlock(lastBlock *model.Block, data string, tp tm.TimeProvider) *model.Block {
 	nonce := 0
 
 	difficulty := lastBlock.Difficulty
@@ -59,7 +53,7 @@ func mineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
 		}
 	}
 
-	return &Block{
+	return &model.Block{
 		Timestamp:  timestampStr,
 		LastHash:   lastBlock.Hash,
 		Difficulty: difficulty,
@@ -69,7 +63,7 @@ func mineBlock(lastBlock *Block, data string, tp tm.TimeProvider) *Block {
 	}
 }
 
-func adjustDifficulty(originalBlock *Block, timestamp time.Time) int {
+func adjustDifficulty(originalBlock *model.Block, timestamp time.Time) int {
 	difficulty := originalBlock.Difficulty
 
 	if difficulty < 1 {
