@@ -4,6 +4,7 @@ import "time"
 
 const MINE_RATE = time.Duration(1 * time.Second)
 const INITIAL_DIFFICULTY = 3
+const STARTING_BALANCE = 1000
 
 type genesisBlock struct {
 	timestamp  string
