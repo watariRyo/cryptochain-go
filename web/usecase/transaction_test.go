@@ -73,7 +73,7 @@ func testTransact(createTransactoinCnt, transactionUpdateCnt, amount int, isTran
 
 	mrRedis := mockRepository.NewMockRedisClientInterface(ctrl)
 	ctx := context.Background()
-	mrRedis.EXPECT().Publish(ctx, (redis.TRANSACTION), gomock.Any()).MaxTimes(1)
+	mrRedis.EXPECT().Publish(ctx, string(redis.TRANSACTION), gomock.Any()).MaxTimes(1)
 
 	return &UseCase{
 		ctx:          ctx,
