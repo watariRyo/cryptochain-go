@@ -18,6 +18,7 @@
 | Go      | 1.23    | 開発言語                                       |
 | go-chi  | v5.1    | [middleware](https://github.com/go-chi/chi/v5) |
 | zerolog | 1.33    | [Logger](https://github.com/rs/zerolog)        |
+| mock    | 0.5.0   | [Mock](https://github.com/uber-go/mock)
 | viper   | 1.19    | [config 管理](https://github.com/spf13/viper)  |
 | Redis   | -       | P2P、PubSub に使用                             |
 | Docker  | -       | コンテナ仮想化                                 |
@@ -70,6 +71,10 @@
 
 - PubSub 実装
 
+### web/infra/wallets
+
+- WalletとTransactionの実装
+
 ### web/handler
 
 - API 受け口, json の marshal/unmarshal
@@ -89,4 +94,3 @@ server -> handler -> usecase -> repository -> infra
 WalletとTransactionが密結合でimport cycle errorが発生する
 それらをラップする構造体を作成し強引に依存関係を保っている
 → API実行でサンプルだから簡便なレイヤードにしたが、失敗したかもしれない
-
