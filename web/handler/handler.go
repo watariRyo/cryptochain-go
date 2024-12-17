@@ -49,11 +49,11 @@ func (handler *Handler) Mine(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *Handler) Transact(w http.ResponseWriter, r *http.Request) {
-	var requestPayload *model.Transact
+	var requestPayload model.Transact
 
-	handler.readJSON(w, r, requestPayload)
+	handler.readJSON(w, r, &requestPayload)
 
-	pool, err := handler.usecase.Transact(requestPayload)
+	pool, err := handler.usecase.Transact(&requestPayload)
 	if err != nil {
 		handler.errorJSON(w, err, http.StatusInternalServerError)
 		return

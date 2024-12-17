@@ -46,7 +46,6 @@ func (bc *BlockChain) GetBlock() []*model.Block {
 func (bc *BlockChain) IsValidChain() bool {
 	genesis := newGenesisBlock(bc.block[0].Timestamp)
 	if !reflect.DeepEqual(bc.block[0], genesis) {
-		logger.Debugf(bc.ctx, "genesis")
 		return false
 	}
 
@@ -54,7 +53,6 @@ func (bc *BlockChain) IsValidChain() bool {
 	lastDifficulty := genesis.Difficulty
 	for _, block := range bc.block[1:] {
 		if actualLastHash != block.LastHash {
-			logger.Debugf(bc.ctx, "lastHash")
 			return false
 		}
 		nonce := block.Nonce
@@ -62,11 +60,9 @@ func (bc *BlockChain) IsValidChain() bool {
 
 		validatedHash := crypto.CryptoHash(block.Timestamp, strconv.Itoa(nonce), strconv.Itoa(difficulty), block.LastHash, block.Data)
 		if block.Hash != validatedHash {
-			logger.Debugf(bc.ctx, "hash")
 			return false
 		}
 		if math.Abs(float64(lastDifficulty-difficulty)) > 1 {
-			logger.Debugf(bc.ctx, "difficulty")
 			return false
 		}
 		actualLastHash = block.Hash
@@ -101,7 +97,6 @@ func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvi
 		logger.Errorf(bc.ctx, "Could not unmarshal block chain. %v", err)
 	}
 	subscribeChain := &BlockChain{
-		ctx:   bc.ctx,
 		block: payloadBlock,
 	}
 	bc.ReplaceChain(subscribeChain.block, tm)

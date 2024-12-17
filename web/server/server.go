@@ -37,7 +37,7 @@ func Run() {
 		log.Panic(err)
 	}
 
-	redisClient, err := redis.NewRedisClient(&configs.Redis, ctx, blockChain, realTimeProvider)
+	redisClient, err := redis.NewRedisClient(&configs.Redis, ctx, blockChain, wallets, realTimeProvider)
 	if err != nil {
 		log.Panic(err)
 	}

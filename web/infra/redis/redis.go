@@ -2,23 +2,27 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/watariRyo/cryptochain-go/configs"
 	"github.com/watariRyo/cryptochain-go/internal/logger"
 	"github.com/watariRyo/cryptochain-go/internal/time"
+	"github.com/watariRyo/cryptochain-go/web/domain/model"
 	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
+	"github.com/watariRyo/cryptochain-go/web/infra/wallets"
 )
 
 type CHANNELS string
 
 const (
-	TEST       CHANNELS = "TEST"
-	BLOCKCHAIN CHANNELS = "BLOCKCHAIN"
+	TEST        CHANNELS = "TEST"
+	BLOCKCHAIN  CHANNELS = "BLOCKCHAIN"
+	TRANSACTION CHANNELS = "TRANSACTION"
 )
 
-var channels = []string{string(TEST), string(BLOCKCHAIN)}
+var channels = []string{string(TEST), string(BLOCKCHAIN), string(TRANSACTION)}
 
 // パブリッシャーとサブスクライバーの両方を宣言する理由は、
 // PubSubのインスタンスがアプリケーションで両方の役割を果たせるようにするため
@@ -27,11 +31,12 @@ type RedisClient struct {
 	publisher  *redis.Client
 	subscriber *redis.PubSub
 	blockChain *block.BlockChain
+	wallets    *wallets.Wallets
 }
 
 var _ repository.RedisClientInterface = (*RedisClient)(nil)
 
-func NewRedisClient(cfg *configs.Redis, ctx context.Context, blockChain *block.BlockChain, tm time.TimeProvider) (*RedisClient, error) {
+func NewRedisClient(cfg *configs.Redis, ctx context.Context, blockChain *block.BlockChain, wallets *wallets.Wallets, tm time.TimeProvider) (*RedisClient, error) {
 	pub, err := createRedisClient(cfg, ctx)
 	if err != nil {
 		return nil, err
@@ -40,6 +45,7 @@ func NewRedisClient(cfg *configs.Redis, ctx context.Context, blockChain *block.B
 	redisClient := &RedisClient{
 		publisher:  pub,
 		blockChain: blockChain,
+		wallets:    wallets,
 	}
 
 	redisClient.Subscribe(ctx, tm)
@@ -75,6 +81,15 @@ func (c *RedisClient) Subscribe(ctx context.Context, tm time.TimeProvider) {
 			if BLOCKCHAIN == CHANNELS(msg.Channel) {
 				payload := []byte(msg.Payload)
 				c.blockChain.UnmarshalAndReplaceBlock(payload, tm)
+			}
+			if TRANSACTION == CHANNELS(msg.Channel) {
+				payload := []byte(msg.Payload)
+				var payloadTransaction *model.Transaction
+				if err := json.Unmarshal(payload, &payloadTransaction); err != nil {
+					logger.Errorf(c.ctx, "Could not unmarshal block chain. %v", err)
+				}
+
+				c.wallets.SetTransaction(payloadTransaction)
 			}
 		}
 	}(c.subscriber)

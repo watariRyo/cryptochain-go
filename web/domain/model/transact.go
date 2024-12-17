@@ -1,6 +1,6 @@
 package model
 
 type Transact struct {
-	Amount    int
-	Recipient string
+	Amount    int    `json:"amount"`
+	Recipient string `json:"recipient"`
 }
