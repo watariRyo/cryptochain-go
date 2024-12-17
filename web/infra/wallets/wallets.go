@@ -25,3 +25,11 @@ func NewWallets(wallet *model.Wallet, transaction *model.Transaction) *Wallets {
 func (w *Wallets) GetTransactionPool() map[uuid.UUID]*model.Transaction {
 	return w.TransactionPool
 }
+
+func (w *Wallets) GetWallet() *model.Wallet {
+	return w.Wallet
+}
+
+func (w *Wallets) GetTransaction() *model.Transaction {
+	return w.Transaction
+}

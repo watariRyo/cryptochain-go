@@ -21,7 +21,8 @@ type UseCaseInterface interface {
 	GetBlock() []*model.Block
 	Mine(payload string) error
 	SyncChain() error
-	Transact(req model.Transact) (map[uuid.UUID]*model.Transaction, error)
+	Transact(req *model.Transact) (map[uuid.UUID]*model.Transaction, error)
+	GetTransactionPool() map[uuid.UUID]*model.Transaction
 }
 
 func NewUseCase(ctx context.Context, timeProvider tm.TimeProvider, repo *repository.AllRepository, configs *configs.Config) *UseCase {

@@ -13,4 +13,8 @@ type WalletsInterface interface {
 	ValidTransaction(ctx context.Context) bool
 	TransactionUpdate(senderWallet *model.Wallet, recpient string, amount int, tm time.TimeProvider) error
 	GetTransactionPool() map[uuid.UUID]*model.Transaction
+	GetWallet() *model.Wallet
+	GetTransaction() *model.Transaction
+	SetTransaction(transaction *model.Transaction)
+	ExistingTransaction() bool
 }

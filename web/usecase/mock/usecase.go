@@ -55,6 +55,20 @@ func (mr *MockUseCaseInterfaceMockRecorder) GetBlock() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlock", reflect.TypeOf((*MockUseCaseInterface)(nil).GetBlock))
 }
 
+// GetTransactionPool mocks base method.
+func (m *MockUseCaseInterface) GetTransactionPool() map[uuid.UUID]*model.Transaction {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTransactionPool")
+	ret0, _ := ret[0].(map[uuid.UUID]*model.Transaction)
+	return ret0
+}
+
+// GetTransactionPool indicates an expected call of GetTransactionPool.
+func (mr *MockUseCaseInterfaceMockRecorder) GetTransactionPool() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionPool", reflect.TypeOf((*MockUseCaseInterface)(nil).GetTransactionPool))
+}
+
 // Mine mocks base method.
 func (m *MockUseCaseInterface) Mine(payload string) error {
 	m.ctrl.T.Helper()
@@ -84,7 +98,7 @@ func (mr *MockUseCaseInterfaceMockRecorder) SyncChain() *gomock.Call {
 }
 
 // Transact mocks base method.
-func (m *MockUseCaseInterface) Transact(req model.Transact) (map[uuid.UUID]*model.Transaction, error) {
+func (m *MockUseCaseInterface) Transact(req *model.Transact) (map[uuid.UUID]*model.Transaction, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Transact", req)
 	ret0, _ := ret[0].(map[uuid.UUID]*model.Transaction)

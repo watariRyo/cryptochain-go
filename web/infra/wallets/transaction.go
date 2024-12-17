@@ -26,8 +26,6 @@ func newTransaction(senderWallet *Wallets, recipient string, amount int, tm tm.T
 	}
 
 	senderWallet.Transaction = transactoin
-	senderWallet.TransactionPool[transactoin.Id] = transactoin
-
 	return nil
 }
 
@@ -94,11 +92,11 @@ func (wt *Wallets) TransactionUpdate(senderWallet *model.Wallet, recpient string
 	recipentAmount, ok := wt.Transaction.OutputMap[recpient]
 	if ok {
 		wt.Transaction.OutputMap[recpient] = recipentAmount + amount
-		wt.Transaction.OutputMap[senderWallet.PublicKey] -= (recipentAmount + amount)
 	} else {
 		wt.Transaction.OutputMap[recpient] = amount
-		wt.Transaction.OutputMap[senderWallet.PublicKey] -= amount
 	}
+
+	wt.Transaction.OutputMap[senderWallet.PublicKey] -= amount
 
 	newInput, err := createInput(tm, senderWallet, wt.Transaction.OutputMap)
 	if err != nil {

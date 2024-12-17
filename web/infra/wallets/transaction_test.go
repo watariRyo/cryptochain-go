@@ -195,7 +195,7 @@ func Test_UpdateAddedRecipentAmount(t *testing.T) {
 	if transaction.OutputMap[dummyRecipient] != amount+addedAmount {
 		t.Errorf("could not added amount to the same recipent")
 	}
-	if transaction.OutputMap[wallets.Wallet.PublicKey] != originalSenderOutput-(amount+addedAmount) {
+	if transaction.OutputMap[wallets.Wallet.PublicKey] != originalSenderOutput-addedAmount {
 		t.Errorf("could not substract original output to the same recipent")
 	}
 }
