@@ -113,6 +113,18 @@ func (mr *MockWalletsInterfaceMockRecorder) GetWallet() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWallet", reflect.TypeOf((*MockWalletsInterface)(nil).GetWallet))
 }
 
+// SetMap mocks base method.
+func (m *MockWalletsInterface) SetMap(transactoinPool map[uuid.UUID]*model.Transaction) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetMap", transactoinPool)
+}
+
+// SetMap indicates an expected call of SetMap.
+func (mr *MockWalletsInterfaceMockRecorder) SetMap(transactoinPool any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetMap", reflect.TypeOf((*MockWalletsInterface)(nil).SetMap), transactoinPool)
+}
+
 // SetTransaction mocks base method.
 func (m *MockWalletsInterface) SetTransaction(transaction *model.Transaction) {
 	m.ctrl.T.Helper()

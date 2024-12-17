@@ -17,4 +17,5 @@ type WalletsInterface interface {
 	GetTransaction() *model.Transaction
 	SetTransaction(transaction *model.Transaction)
 	ExistingTransaction() bool
+	SetMap(transactoinPool map[uuid.UUID]*model.Transaction)
 }

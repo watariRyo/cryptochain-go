@@ -20,7 +20,7 @@ type UseCase struct {
 type UseCaseInterface interface {
 	GetBlock() []*model.Block
 	Mine(payload string) error
-	SyncChain() error
+	SyncWithRootState() error
 	Transact(req *model.Transact) (map[uuid.UUID]*model.Transaction, error)
 	GetTransactionPool() map[uuid.UUID]*model.Transaction
 }

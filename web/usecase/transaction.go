@@ -22,9 +22,10 @@ func (u *UseCase) Transact(req *model.Transact) (map[uuid.UUID]*model.Transactio
 		}
 	}
 
-	u.repo.Wallets.SetTransaction(u.repo.Wallets.GetTransaction())
-
 	transaction := u.repo.Wallets.GetTransaction()
+
+	u.repo.Wallets.SetTransaction(transaction)
+
 	broadcastTransaction, err := json.Marshal(transaction)
 	if err != nil {
 		return nil, err

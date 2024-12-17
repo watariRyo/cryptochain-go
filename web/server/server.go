@@ -69,7 +69,7 @@ func Run() {
 
 	go func() {
 		if configs.Server.DefaultPort != configs.Server.Port {
-			err = usecase.SyncChain()
+			err = usecase.SyncWithRootState()
 			if err != nil {
 				log.Panic(err)
 			}

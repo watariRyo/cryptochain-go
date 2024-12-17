@@ -83,18 +83,18 @@ func (mr *MockUseCaseInterfaceMockRecorder) Mine(payload any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Mine", reflect.TypeOf((*MockUseCaseInterface)(nil).Mine), payload)
 }
 
-// SyncChain mocks base method.
-func (m *MockUseCaseInterface) SyncChain() error {
+// SyncWithRootState mocks base method.
+func (m *MockUseCaseInterface) SyncWithRootState() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SyncChain")
+	ret := m.ctrl.Call(m, "SyncWithRootState")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SyncChain indicates an expected call of SyncChain.
-func (mr *MockUseCaseInterfaceMockRecorder) SyncChain() *gomock.Call {
+// SyncWithRootState indicates an expected call of SyncWithRootState.
+func (mr *MockUseCaseInterfaceMockRecorder) SyncWithRootState() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncChain", reflect.TypeOf((*MockUseCaseInterface)(nil).SyncChain))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncWithRootState", reflect.TypeOf((*MockUseCaseInterface)(nil).SyncWithRootState))
 }
 
 // Transact mocks base method.

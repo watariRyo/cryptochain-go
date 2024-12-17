@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"testing"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 	mockRepository "github.com/watariRyo/cryptochain-go/web/domain/repository/mock"
+	"github.com/watariRyo/cryptochain-go/web/infra/redis"
 	"go.uber.org/mock/gomock"
 )
 
@@ -69,8 +71,13 @@ func testTransact(createTransactoinCnt, transactionUpdateCnt, amount int, isTran
 	mrWallets.EXPECT().CreateTransaction(recipient, amount, mockTimeProvider).Times(createTransactoinCnt)
 	mrWallets.EXPECT().TransactionUpdate(gomock.Any(), recipient, amount, mockTimeProvider).Times(transactionUpdateCnt)
 
+	mrRedis := mockRepository.NewMockRedisClientInterface(ctrl)
+	ctx := context.Background()
+	mrRedis.EXPECT().Publish(ctx, (redis.TRANSACTION), gomock.Any()).MaxTimes(1)
+
 	return &UseCase{
+		ctx:          ctx,
 		timeProvider: mockTimeProvider,
-		repo:         &repository.AllRepository{Wallets: mrWallets},
+		repo:         &repository.AllRepository{Wallets: mrWallets, RedisClient: mrRedis},
 	}
 }
