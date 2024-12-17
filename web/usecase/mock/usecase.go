@@ -12,6 +12,7 @@ package usecase
 import (
 	reflect "reflect"
 
+	uuid "github.com/google/uuid"
 	model "github.com/watariRyo/cryptochain-go/web/domain/model"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -80,4 +81,19 @@ func (m *MockUseCaseInterface) SyncChain() error {
 func (mr *MockUseCaseInterfaceMockRecorder) SyncChain() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncChain", reflect.TypeOf((*MockUseCaseInterface)(nil).SyncChain))
+}
+
+// Transact mocks base method.
+func (m *MockUseCaseInterface) Transact(req model.Transact) (map[uuid.UUID]*model.Transaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Transact", req)
+	ret0, _ := ret[0].(map[uuid.UUID]*model.Transaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Transact indicates an expected call of Transact.
+func (mr *MockUseCaseInterfaceMockRecorder) Transact(req any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transact", reflect.TypeOf((*MockUseCaseInterface)(nil).Transact), req)
 }

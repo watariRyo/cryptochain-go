@@ -57,6 +57,7 @@ test: ## Launch tests
 mock:
 	mockgen -source ./web/domain/repository/block_chain.go -destination ./web/domain/repository/mock/block_chain.go -package repository
 	mockgen -source ./web/domain/repository/redis.go -destination ./web/domain/repository/mock/redis.go -package repository
+	mockgen -source ./web/domain/repository/wallets.go -destination ./web/domain/repository/mock/wallets.go -package repository
 	mockgen -source ./web/usecase/usecase.go -destination ./web/usecase/mock/usecase.go -package usecase
 
 up:

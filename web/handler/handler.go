@@ -10,9 +10,9 @@ import (
 )
 
 type Handler struct {
-	ctx         context.Context
-	configs     *configs.Config
-	usecase 	usecase.UseCaseInterface
+	ctx     context.Context
+	configs *configs.Config
+	usecase usecase.UseCaseInterface
 }
 
 type HandlerInterface interface {
@@ -24,9 +24,9 @@ var _ HandlerInterface = (*Handler)(nil)
 
 func NewHandler(ctx context.Context, usecase *usecase.UseCase, configs *configs.Config) *Handler {
 	return &Handler{
-		ctx:        ctx,
-		usecase: 	usecase,
-		configs:    configs,
+		ctx:     ctx,
+		usecase: usecase,
+		configs: configs,
 	}
 }
 
@@ -39,7 +39,7 @@ func (handler *Handler) Mine(w http.ResponseWriter, r *http.Request) {
 
 	handler.readJSON(w, r, &requestPayload)
 
-	err := handler.usecase.Mine(requestPayload.Data);
+	err := handler.usecase.Mine(requestPayload.Data)
 	if err != nil {
 		handler.errorJSON(w, err, http.StatusInternalServerError)
 		return
@@ -48,4 +48,16 @@ func (handler *Handler) Mine(w http.ResponseWriter, r *http.Request) {
 	handler.GetBlocks(w, r)
 }
 
+func (handler *Handler) Transact(w http.ResponseWriter, r *http.Request) {
+	var requestPayload model.Transact
 
+	handler.readJSON(w, r, &requestPayload)
+
+	pool, err := handler.usecase.Transact(requestPayload)
+	if err != nil {
+		handler.errorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	handler.writeJSON(w, http.StatusOK, pool)
+}

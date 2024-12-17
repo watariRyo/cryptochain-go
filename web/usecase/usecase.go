@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/watariRyo/cryptochain-go/configs"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
@@ -10,23 +11,24 @@ import (
 )
 
 type UseCase struct {
-	ctx     context.Context
+	ctx          context.Context
 	timeProvider tm.TimeProvider
-	repo  *repository.AllRepository
-	configs *configs.Config
+	repo         *repository.AllRepository
+	configs      *configs.Config
 }
 
 type UseCaseInterface interface {
 	GetBlock() []*model.Block
 	Mine(payload string) error
 	SyncChain() error
+	Transact(req model.Transact) (map[uuid.UUID]*model.Transaction, error)
 }
 
-func NewUseCase(ctx context.Context, timeProvider tm.TimeProvider, repo *repository.AllRepository, configs *configs.Config) *UseCase { 
+func NewUseCase(ctx context.Context, timeProvider tm.TimeProvider, repo *repository.AllRepository, configs *configs.Config) *UseCase {
 	return &UseCase{
-		ctx: ctx,
+		ctx:          ctx,
 		timeProvider: timeProvider,
-		repo: repo,
-        configs: configs,
+		repo:         repo,
+		configs:      configs,
 	}
 }

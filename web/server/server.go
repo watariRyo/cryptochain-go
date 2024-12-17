@@ -13,6 +13,7 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/handler"
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
 	"github.com/watariRyo/cryptochain-go/web/infra/redis"
+	"github.com/watariRyo/cryptochain-go/web/infra/wallets"
 	"github.com/watariRyo/cryptochain-go/web/usecase"
 )
 
@@ -25,6 +26,11 @@ func Run() {
 	realTimeProvider := &time.RealTimeProvider{}
 	ctx := context.Background()
 	blockChain := block.NewBlockChain(ctx, realTimeProvider)
+	wallet, err := wallets.NewWallet()
+	if err != nil {
+		log.Panic(err)
+	}
+	wallets := wallets.NewWallets(wallet, nil)
 
 	configs, err := configs.Load()
 	if err != nil {
@@ -37,7 +43,7 @@ func Run() {
 	}
 
 	// dependencies
-	repo := repository.NewRepository(redisClient, blockChain)
+	repo := repository.NewRepository(redisClient, blockChain, wallets)
 
 	usecase := usecase.NewUseCase(ctx, realTimeProvider, repo, configs)
 

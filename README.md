@@ -7,9 +7,9 @@
   - コンテナ仮想化
 - TODO
   - Transaction Pool
-    - Wallet, Transactionの依存修正
   - Mine Transactions
   - Frontend by React
+  - Walletsパッケージの歪な依存改善または整理
 
 ## スタック
 
@@ -86,5 +86,7 @@
 
 server -> handler -> usecase -> repository -> infra
 
-redis がチェーン持っているのは避けたいが、pubsub の都合難しい、、、  
-block を DB と同等とみなして infra 層とした
+WalletとTransactionが密結合でimport cycle errorが発生する
+それらをラップする構造体を作成し強引に依存関係を保っている
+→ API実行でサンプルだから簡便なレイヤードにしたが、失敗したかもしれない
+
