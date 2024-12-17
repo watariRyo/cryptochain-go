@@ -1,11 +1,15 @@
 package ec
 
 import (
+	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"math/big"
 	"sync"
+
+	"github.com/watariRyo/cryptochain-go/internal/crypto"
 )
 
 var once sync.Once
@@ -89,4 +93,29 @@ func DecompressHexPublicKey(curve elliptic.Curve, compressedHex string) (*big.In
 	}
 
 	return x, y, nil
+}
+
+func Sign(privateKey *ecdsa.PrivateKey, message []byte) (r, s *big.Int, err error) {
+	hash := crypto.CryptoHashByte(string(message))
+	// 署名作成
+	r, s, err = ecdsa.Sign(rand.Reader, privateKey, hash)
+	return r, s, err
+}
+
+func VerifySignature(curve elliptic.Curve, publicKeyHex string, message []byte, r, s *big.Int) bool {
+	hash := crypto.CryptoHashByte(string(message))
+
+	x, y, err := DecompressHexPublicKey(curve, publicKeyHex)
+	if err != nil {
+		return false
+	}
+
+	publicKey := &ecdsa.PublicKey{
+		Curve: curve,
+		X:     x,
+		Y:     y,
+	}
+
+	// 署名検証
+	return ecdsa.Verify(publicKey, hash, r, s)
 }

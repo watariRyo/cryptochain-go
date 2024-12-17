@@ -1,14 +1,14 @@
 # Go によるブロックチェーン基盤作成
 
 - Done
-  - 簡易な Block, Chain の実装
+  - 簡易な Block, Chain, Wallet, Transaction の実装
   - handler
   - P2P 実現のための PubSub
   - コンテナ仮想化
 - TODO
-  - Wallet
-  - Keys、署名
-  - Transaction, Transaction Pool
+  - Transaction Pool
+    - Wallet, Transactionの依存修正
+  - Mine Transactions
   - Frontend by React
 
 ## スタック

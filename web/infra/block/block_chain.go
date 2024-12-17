@@ -16,8 +16,8 @@ import (
 )
 
 type BlockChain struct {
-	ctx          context.Context
-	block        []*model.Block
+	ctx   context.Context
+	block []*model.Block
 }
 
 var _ repository.BlockChainInterface = (*BlockChain)(nil)
@@ -83,7 +83,7 @@ func (bc *BlockChain) ReplaceChain(block []*model.Block, tm time.TimeProvider) {
 	}
 
 	checkChain := &BlockChain{
-		ctx: bc.ctx,
+		ctx:   bc.ctx,
 		block: block,
 	}
 

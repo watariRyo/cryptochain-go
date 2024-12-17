@@ -8,12 +8,21 @@ import (
 )
 
 func CryptoHash(inputs ...string) string {
+	hash := cryptoHash(inputs...)
+	return hex.EncodeToString(hash[:])
+}
+
+func CryptoHashByte(inputs ...string) []byte {
+	return cryptoHash(inputs...)
+}
+
+func cryptoHash(inputs ...string) []byte {
 	sort.SliceStable(inputs, func(i, j int) bool {
 		return inputs[i] < inputs[j]
 	})
 	result := strings.Join(inputs, "")
 	hash := sha256.Sum256([]byte(result))
-	return hex.EncodeToString(hash[:])
+	return hash[:]
 }
 
 // 16進文字を2進数に変換する

@@ -1,6 +1,7 @@
 package crypto
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -17,6 +18,17 @@ func TestCryptoHashSHA256(t *testing.T) {
 
 	if sum != expected {
 		t.Errorf("cryptoHash mismatch. expected %v, got %v", expected, sum)
+	}
+}
+func Test_ProducesUniqueHash(t *testing.T) {
+	foo := make(map[string]int)
+	bytes, _ := json.Marshal(foo)
+	originalHash := CryptoHashByte(string(bytes))
+	foo["a"] = 1
+	newBytes, _ := json.Marshal(foo)
+	nextHash := CryptoHashByte(string(newBytes))
+	if string(originalHash) == string(nextHash) {
+		t.Errorf("could not produces unique hash.")
 	}
 }
 

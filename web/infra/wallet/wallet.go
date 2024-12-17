@@ -4,21 +4,25 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/sha256"
+	"fmt"
 	"math/big"
 
 	"github.com/watariRyo/cryptochain-go/internal/ec"
+	tm "github.com/watariRyo/cryptochain-go/internal/time"
+	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
 )
 
 type Wallet struct {
 	curve     elliptic.Curve
-	balance   int64
+	Balance   int
 	keyPair   *ecdsa.PrivateKey
-	publicKey string
+	PublicKey string
 }
 
-func newWallet() (*Wallet, error) {
+var _ repository.WalletInterface = (*Wallet)(nil)
+
+func NewWallet() (*Wallet, error) {
 	curve := ec.Secp256k1()
 	privateKey, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
@@ -27,33 +31,23 @@ func newWallet() (*Wallet, error) {
 
 	return &Wallet{
 		curve:     curve,
-		balance:   block.STARTING_BALANCE,
+		Balance:   block.STARTING_BALANCE,
 		keyPair:   privateKey,
-		publicKey: ec.PublicKeyToHexCompressed(privateKey.PublicKey.X, privateKey.Y),
+		PublicKey: ec.PublicKeyToHexCompressed(privateKey.PublicKey.X, privateKey.Y),
 	}, nil
 }
 
-func (w *Wallet) Sign(message string) (r, s *big.Int, err error) {
-	hash := sha256.Sum256([]byte(message))
-	// 署名作成
-	r, s, err = ecdsa.Sign(rand.Reader, w.keyPair, hash[:])
-	return r, s, err
+func (w *Wallet) Sign(message []byte) (r, s *big.Int, err error) {
+	return ec.Sign(w.keyPair, message)
 }
 
-func (w *Wallet) VerifySignature(message string, r, s *big.Int) bool {
-	hash := sha256.Sum256([]byte(message))
+func (w *Wallet) VerifySignature(message []byte, r, s *big.Int) bool {
+	return ec.VerifySignature(w.curve, w.PublicKey, message, r, s)
+}
 
-	x, y, err := ec.DecompressHexPublicKey(w.curve, w.publicKey)
-	if err != nil {
-		return false
+func (w *Wallet) CreateTransaction(recipient string, amount int, tm tm.TimeProvider) (*Transaction, error) {
+	if amount > w.Balance {
+		return nil, fmt.Errorf("amount exceeds balance. amount:%d balance:%d", amount, w.Balance)
 	}
-
-	publicKey := &ecdsa.PublicKey{
-		Curve: w.curve,
-		X:     x,
-		Y:     y,
-	}
-
-	// 署名検証
-	return ecdsa.Verify(publicKey, hash[:], r, s)
+	return NewTransaction(w, recipient, amount, tm)
 }
