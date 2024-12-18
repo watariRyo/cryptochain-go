@@ -1,6 +1,8 @@
 package wallets
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
@@ -24,4 +26,14 @@ func (wtp *Wallets) ExistingTransaction() bool {
 		}
 	}
 	return false
+}
+
+func (wtp *Wallets) ValidTransactoins(ctx context.Context) []*model.Transaction {
+	var validTransactions []*model.Transaction
+	for _, transaction := range wtp.TransactionPool {
+		if wtp.validTransaction(ctx, transaction) {
+			validTransactions = append(validTransactions, transaction)
+		}
+	}
+	return validTransactions
 }

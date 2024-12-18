@@ -18,4 +18,5 @@ type WalletsInterface interface {
 	SetTransaction(transaction *model.Transaction)
 	ExistingTransaction() bool
 	SetMap(transactoinPool map[uuid.UUID]*model.Transaction)
+	ValidTransactoins(ctx context.Context) []*model.Transaction
 }

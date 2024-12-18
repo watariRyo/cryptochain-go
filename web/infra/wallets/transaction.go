@@ -61,23 +61,27 @@ func createOutputMap(senderWallet *model.Wallet, recipient string, amount int) m
 }
 
 func (wt *Wallets) ValidTransaction(ctx context.Context) bool {
+	return wt.validTransaction(ctx, wt.Transaction)
+}
+
+func (wt *Wallets) validTransaction(ctx context.Context, transaction *model.Transaction) bool {
 	total := 0
-	for _, value := range wt.Transaction.OutputMap {
+	for _, value := range transaction.OutputMap {
 		total += value
 	}
 
-	if wt.Transaction.Input.Amount != total {
-		logger.Errorf(ctx, "Invalid transaction from %s", wt.Transaction.Input.Address)
+	if transaction.Input.Amount != total {
+		logger.Errorf(ctx, "Invalid transaction from %s", transaction.Input.Address)
 		return false
 	}
 
-	bytes, err := json.Marshal(wt.Transaction.OutputMap)
+	bytes, err := json.Marshal(transaction.OutputMap)
 	if err != nil {
-		logger.Errorf(ctx, "Invalid outputMap %v", wt.Transaction.OutputMap)
+		logger.Errorf(ctx, "Invalid outputMap %v", transaction.OutputMap)
 		return false
 	}
 
-	if !ec.VerifySignature(ec.Secp256k1(), wt.Transaction.Input.Address, bytes, wt.Transaction.Input.Signature.R, wt.Transaction.Input.Signature.S) {
+	if !ec.VerifySignature(ec.Secp256k1(), transaction.Input.Address, bytes, transaction.Input.Signature.R, transaction.Input.Signature.S) {
 		return false
 	}
 
