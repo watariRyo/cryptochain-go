@@ -12,6 +12,9 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
 
+const MINING_REWARD int = 50
+const REWARD_INPUT = "*authorized-reward*"
+
 func newTransaction(senderWallet *Wallets, recipient string, amount int, tm tm.TimeProvider) error {
 	outputMap := createOutputMap(senderWallet.Wallet, recipient, amount)
 	input, err := createInput(tm, senderWallet.Wallet, outputMap)
@@ -26,6 +29,23 @@ func newTransaction(senderWallet *Wallets, recipient string, amount int, tm tm.T
 	}
 
 	senderWallet.Transaction = transactoin
+	return nil
+}
+
+func NewRewardTransaction(minerWallet *Wallets, recipient string, amount int, tm tm.TimeProvider, miningReward int, rewardInput string) error {
+	outputMap := make(map[string]int)
+	outputMap[minerWallet.Wallet.PublicKey] = miningReward
+	input := &model.Input{
+		Address: rewardInput,
+	}
+
+	transactoin := &model.Transaction{
+		Id:        uuid.New(),
+		OutputMap: outputMap,
+		Input:     input,
+	}
+
+	minerWallet.Transaction = transactoin
 	return nil
 }
 

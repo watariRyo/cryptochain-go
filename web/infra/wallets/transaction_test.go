@@ -199,3 +199,25 @@ func Test_UpdateAddedRecipentAmount(t *testing.T) {
 		t.Errorf("could not substract original output to the same recipent")
 	}
 }
+
+func Test_NewRewardTransaction(t *testing.T) {
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+	minerWallet, _ := NewWallet()
+	wallets := NewWallets(minerWallet, nil)
+	dummyRecipient := ""
+	amount := 0
+
+	// create a transacion with the reward input
+	NewRewardTransaction(wallets, dummyRecipient, amount, mockTimeProvider, MINING_REWARD, REWARD_INPUT)
+	rewardTransaction := wallets.Transaction
+
+	if rewardTransaction.Input.Address != REWARD_INPUT {
+		t.Errorf("RewardInput is missmatched. got: %s want: %s", rewardTransaction.Input.Address, REWARD_INPUT)
+	}
+
+	// creates ones transaction for the minner with the MINING_REWARD
+	if rewardTransaction.OutputMap[minerWallet.PublicKey] != MINING_REWARD {
+		t.Errorf("Mining Reward is missmatched. got: %d want: %d", rewardTransaction.OutputMap[minerWallet.PublicKey], MINING_REWARD)
+	}
+}
