@@ -1,12 +1,14 @@
 # Go によるブロックチェーン基盤作成
 
+報酬やジェネシスブロックは適当
+
 - Done
   - 簡易な Block, Chain, Wallet, Transaction の実装
+  - Transaction Pool
   - handler
   - P2P 実現のための PubSub
   - コンテナ仮想化
 - TODO
-  - Transaction Pool
   - Mine Transactions
   - Frontend by React
   - Walletsパッケージの歪な依存改善または整理

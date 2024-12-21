@@ -2,12 +2,15 @@ package wallets
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/uuid"
 	"github.com/watariRyo/cryptochain-go/internal/ec"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
+	"github.com/watariRyo/cryptochain-go/web/infra/block"
 )
 
 func Test_TransactionPool(t *testing.T) {
@@ -94,6 +97,65 @@ func Test_ValidTransactins(t *testing.T) {
 		}
 		if !isMatched {
 			t.Errorf("could not get expected valid transactions")
+		}
+	}
+}
+
+func Test_ClearTransaction(t *testing.T) {
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	w, _ := NewWallet()
+	wallets := NewWallets(w, nil)
+	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+
+	wallets.ClearTransactionPool()
+
+	if len(wallets.TransactionPool) != 0 {
+		t.Errorf("Transaction pool is not cleared")
+	}
+}
+
+func Test_ClearBlockChainTransaction(t *testing.T) {
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	w, _ := NewWallet()
+	wallets := NewWallets(w, nil)
+	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+
+	// clears the pool of any existing blockchain transaction
+	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+
+	expectedTransactionMap := make(map[uuid.UUID]*model.Transaction)
+
+	for idx := range 6 {
+		wallets.CreateTransaction("foo", 20, mockTimeProvider)
+		wallets.SetTransaction(wallets.Transaction)
+
+		if idx%2 == 0 {
+			transacionBytes, _ := json.Marshal(wallets.Transaction)
+			blockChain.AddBlock(string(transacionBytes), mockTimeProvider)
+		} else {
+			expectedTransactionMap[wallets.Transaction.Id] = wallets.Transaction
+		}
+	}
+	wallets.ClearBlockChainTransactions(blockChain.GetBlock())
+
+	if len(expectedTransactionMap) != len(wallets.TransactionPool) {
+		t.Errorf("Transaction pool count is missmatched got: %d want: %d", len(wallets.TransactionPool), len(expectedTransactionMap))
+	}
+
+	for expectedKey := range expectedTransactionMap {
+		isOk := false
+		for gotKey := range wallets.TransactionPool {
+			if expectedKey == gotKey {
+				isOk = true
+				break
+			}
+		}
+		if !isOk {
+			t.Errorf("Something that shouldn't have been deleted has been removed")
 		}
 	}
 }

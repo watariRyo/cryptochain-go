@@ -19,4 +19,6 @@ type WalletsInterface interface {
 	ExistingTransaction() bool
 	SetMap(transactoinPool map[uuid.UUID]*model.Transaction)
 	ValidTransactoins(ctx context.Context) []*model.Transaction
+	ClearTransactionPool()
+	ClearBlockChainTransactions(chain []*model.Block) error
 }

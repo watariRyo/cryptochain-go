@@ -43,6 +43,32 @@ func (m *MockWalletsInterface) EXPECT() *MockWalletsInterfaceMockRecorder {
 	return m.recorder
 }
 
+// ClearBlockChainTransactions mocks base method.
+func (m *MockWalletsInterface) ClearBlockChainTransactions(chain []*model.Block) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClearBlockChainTransactions", chain)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ClearBlockChainTransactions indicates an expected call of ClearBlockChainTransactions.
+func (mr *MockWalletsInterfaceMockRecorder) ClearBlockChainTransactions(chain any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearBlockChainTransactions", reflect.TypeOf((*MockWalletsInterface)(nil).ClearBlockChainTransactions), chain)
+}
+
+// ClearTransactionPool mocks base method.
+func (m *MockWalletsInterface) ClearTransactionPool() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ClearTransactionPool")
+}
+
+// ClearTransactionPool indicates an expected call of ClearTransactionPool.
+func (mr *MockWalletsInterfaceMockRecorder) ClearTransactionPool() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearTransactionPool", reflect.TypeOf((*MockWalletsInterface)(nil).ClearTransactionPool))
+}
+
 // CreateTransaction mocks base method.
 func (m *MockWalletsInterface) CreateTransaction(recipient string, amount int, tm time.TimeProvider) error {
 	m.ctrl.T.Helper()
