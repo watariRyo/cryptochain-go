@@ -21,4 +21,5 @@ type WalletsInterface interface {
 	ValidTransactoins(ctx context.Context) []*model.Transaction
 	ClearTransactionPool()
 	ClearBlockChainTransactions(chain []*model.Block) error
+	NewRewardTransaction(tm time.TimeProvider) error
 }

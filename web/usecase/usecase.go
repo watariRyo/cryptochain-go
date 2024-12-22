@@ -23,6 +23,7 @@ type UseCaseInterface interface {
 	SyncWithRootState() error
 	Transact(req *model.Transact) (map[uuid.UUID]*model.Transaction, error)
 	GetTransactionPool() map[uuid.UUID]*model.Transaction
+	MineTransactions() error
 }
 
 func NewUseCase(ctx context.Context, timeProvider tm.TimeProvider, repo *repository.AllRepository, configs *configs.Config) *UseCase {

@@ -1,13 +1,34 @@
 package usecase
 
-func (u *UseCase) MineTransactions() {
-	// get the transaction pool's valid transactions
+import (
+	"encoding/json"
 
-	// generate the miner's reward
+	"github.com/watariRyo/cryptochain-go/web/infra/redis"
+)
 
-	// add block consisting of these transactions to the blockchain
+func (u *UseCase) MineTransactions() error {
+	validTransactions := u.repo.Wallets.ValidTransactoins(u.ctx)
 
-	// broadcaset the updated blockchain
+	err := u.repo.Wallets.NewRewardTransaction(u.timeProvider)
+	if err != nil {
+		return err
+	}
+	validTransactions = append(validTransactions, u.repo.Wallets.GetTransaction())
 
-	// clear the pool
+	validTransactionBytes, err := json.Marshal(validTransactions)
+	if err != nil {
+		return err
+	}
+	u.repo.BlockChain.AddBlock(string(validTransactionBytes), u.timeProvider)
+
+	broadcastChain, err := json.Marshal(u.repo.BlockChain.GetBlock())
+	if err != nil {
+		return err
+	}
+
+	go u.repo.RedisClient.Publish(u.ctx, string(redis.BLOCKCHAIN), string(broadcastChain))
+
+	u.repo.Wallets.ClearTransactionPool()
+
+	return nil
 }

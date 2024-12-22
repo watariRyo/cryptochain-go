@@ -83,6 +83,20 @@ func (mr *MockUseCaseInterfaceMockRecorder) Mine(payload any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Mine", reflect.TypeOf((*MockUseCaseInterface)(nil).Mine), payload)
 }
 
+// MineTransactions mocks base method.
+func (m *MockUseCaseInterface) MineTransactions() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MineTransactions")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MineTransactions indicates an expected call of MineTransactions.
+func (mr *MockUseCaseInterfaceMockRecorder) MineTransactions() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MineTransactions", reflect.TypeOf((*MockUseCaseInterface)(nil).MineTransactions))
+}
+
 // SyncWithRootState mocks base method.
 func (m *MockUseCaseInterface) SyncWithRootState() error {
 	m.ctrl.T.Helper()

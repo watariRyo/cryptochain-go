@@ -205,11 +205,9 @@ func Test_NewRewardTransaction(t *testing.T) {
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	minerWallet, _ := NewWallet()
 	wallets := NewWallets(minerWallet, nil)
-	dummyRecipient := ""
-	amount := 0
 
 	// create a transacion with the reward input
-	NewRewardTransaction(wallets, dummyRecipient, amount, mockTimeProvider, MINING_REWARD, REWARD_INPUT)
+	wallets.NewRewardTransaction(mockTimeProvider)
 	rewardTransaction := wallets.Transaction
 
 	if rewardTransaction.Input.Address != REWARD_INPUT {

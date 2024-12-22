@@ -26,6 +26,7 @@ func (server *Server) Routes() http.Handler {
 	mux.Post("/api/mine", server.handler.Mine)
 	mux.Post("/api/transact", server.handler.Transact)
 	mux.Get("/api/transaction-pool-map", server.handler.GetTransactionPool)
+	mux.Get("/api/mine-transactions", server.handler.GetMineTransactions)
 
 	return mux
 }

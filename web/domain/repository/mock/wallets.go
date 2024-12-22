@@ -139,6 +139,20 @@ func (mr *MockWalletsInterfaceMockRecorder) GetWallet() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWallet", reflect.TypeOf((*MockWalletsInterface)(nil).GetWallet))
 }
 
+// NewRewardTransaction mocks base method.
+func (m *MockWalletsInterface) NewRewardTransaction(tm time.TimeProvider) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewRewardTransaction", tm)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// NewRewardTransaction indicates an expected call of NewRewardTransaction.
+func (mr *MockWalletsInterfaceMockRecorder) NewRewardTransaction(tm any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewRewardTransaction", reflect.TypeOf((*MockWalletsInterface)(nil).NewRewardTransaction), tm)
+}
+
 // SetMap mocks base method.
 func (m *MockWalletsInterface) SetMap(transactoinPool map[uuid.UUID]*model.Transaction) {
 	m.ctrl.T.Helper()

@@ -18,6 +18,9 @@ type Handler struct {
 type HandlerInterface interface {
 	GetBlocks(w http.ResponseWriter, r *http.Request)
 	Mine(w http.ResponseWriter, r *http.Request)
+	Transact(w http.ResponseWriter, r *http.Request)
+	GetTransactionPool(w http.ResponseWriter, r *http.Request)
+	GetMineTransactions(w http.ResponseWriter, r *http.Request)
 }
 
 var _ HandlerInterface = (*Handler)(nil)
@@ -65,4 +68,12 @@ func (handler *Handler) Transact(w http.ResponseWriter, r *http.Request) {
 func (handler *Handler) GetTransactionPool(w http.ResponseWriter, r *http.Request) {
 	pool := handler.usecase.GetTransactionPool()
 	handler.writeJSON(w, http.StatusOK, pool)
+}
+
+func (handler *Handler) GetMineTransactions(w http.ResponseWriter, r *http.Request) {
+	if err := handler.usecase.MineTransactions(); err != nil {
+		handler.errorJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+	handler.GetBlocks(w, r)
 }

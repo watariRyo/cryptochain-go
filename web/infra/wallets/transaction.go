@@ -32,23 +32,6 @@ func newTransaction(senderWallet *Wallets, recipient string, amount int, tm tm.T
 	return nil
 }
 
-func NewRewardTransaction(minerWallet *Wallets, recipient string, amount int, tm tm.TimeProvider, miningReward int, rewardInput string) error {
-	outputMap := make(map[string]int)
-	outputMap[minerWallet.Wallet.PublicKey] = miningReward
-	input := &model.Input{
-		Address: rewardInput,
-	}
-
-	transactoin := &model.Transaction{
-		Id:        uuid.New(),
-		OutputMap: outputMap,
-		Input:     input,
-	}
-
-	minerWallet.Transaction = transactoin
-	return nil
-}
-
 func createInput(tm tm.TimeProvider, senderWallet *model.Wallet, outputMap map[string]int) (*model.Input, error) {
 	signatureDate, err := json.Marshal(outputMap)
 	if err != nil {
@@ -78,6 +61,23 @@ func createOutputMap(senderWallet *model.Wallet, recipient string, amount int) m
 	outputMap[senderWallet.PublicKey] = senderWallet.Balance - amount
 
 	return outputMap
+}
+
+func (wt *Wallets) NewRewardTransaction(tm tm.TimeProvider) error {
+	outputMap := make(map[string]int)
+	outputMap[wt.Wallet.PublicKey] = MINING_REWARD
+	input := &model.Input{
+		Address: REWARD_INPUT,
+	}
+
+	transactoin := &model.Transaction{
+		Id:        uuid.New(),
+		OutputMap: outputMap,
+		Input:     input,
+	}
+
+	wt.Transaction = transactoin
+	return nil
 }
 
 func (wt *Wallets) ValidTransaction(ctx context.Context) bool {
