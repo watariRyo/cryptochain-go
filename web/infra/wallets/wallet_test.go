@@ -1,10 +1,13 @@
 package wallets
 
 import (
+	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
 	"github.com/watariRyo/cryptochain-go/internal/ec"
+	"github.com/watariRyo/cryptochain-go/web/infra/block"
 )
 
 func Test_SigningData(t *testing.T) {
@@ -66,4 +69,44 @@ func Test_CreateTrunsaction(t *testing.T) {
 			t.Errorf("should match outputs the amount the recipient")
 		}
 	})
+}
+
+func Test_CaluculateBalance(t *testing.T) {
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	w, _ := NewWallet()
+	wallets := NewWallets(w, nil)
+	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+
+	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+
+	// return the STARTING_BALANCE
+	gotStartingBalance, err := wallets.CaluculateBalance(blockChain.GetBlock(), wallets.Wallet.PublicKey)
+	if err != nil {
+		t.Errorf("calculate balance failed. err: %v", err)
+	}
+	if gotStartingBalance != block.STARTING_BALANCE {
+		t.Errorf("failed to set genesis balanace")
+	}
+
+	wallets.CreateTransaction(wallets.Wallet.PublicKey, 50, mockTimeProvider)
+	transactionOne := wallets.Transaction
+	wallets.CreateTransaction(wallets.Wallet.PublicKey, 60, mockTimeProvider)
+	transactionTwo := wallets.Transaction
+
+	transactionOneBytes, _ := json.Marshal(transactionOne)
+	transactionTwoBytes, _ := json.Marshal(transactionTwo)
+	blockChain.AddBlock(string(transactionOneBytes), mockTimeProvider)
+	blockChain.AddBlock(string(transactionTwoBytes), mockTimeProvider)
+
+	// addds the sum of all outputs to the wallet balance
+	got, err := wallets.CaluculateBalance(blockChain.GetBlock(), wallets.Wallet.PublicKey)
+	if err != nil {
+		t.Errorf("calculate balance failed. err: %v", err)
+	}
+	want := block.STARTING_BALANCE + transactionOne.OutputMap[wallets.Wallet.PublicKey] + transactionTwo.OutputMap[wallets.Wallet.PublicKey]
+	if got != want {
+		t.Errorf("calculate balance failed to calculate. got: %d want: %d", got, want)
+	}
 }

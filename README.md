@@ -93,6 +93,7 @@
 
 server -> handler -> usecase -> repository -> infra
 
-WalletとTransactionが密結合でimport cycle errorが発生する
-それらをラップする構造体を作成し強引に依存関係を保っている
-→ API実行でサンプルだから簡便なレイヤードにしたが、失敗したかもしれない
+WalletとTransactionが密結合でimport cycle errorが発生する  
+それらをラップする構造体を作成し強引に依存関係を保っている  
+→ API実行でサンプルだから簡便なレイヤードにしたが、失敗したかもしれない  
+infra層間ではblockが一番下になっている  

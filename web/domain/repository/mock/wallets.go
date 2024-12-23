@@ -43,6 +43,21 @@ func (m *MockWalletsInterface) EXPECT() *MockWalletsInterfaceMockRecorder {
 	return m.recorder
 }
 
+// CaluculateBalance mocks base method.
+func (m *MockWalletsInterface) CaluculateBalance(chain []*model.Block, address string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CaluculateBalance", chain, address)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CaluculateBalance indicates an expected call of CaluculateBalance.
+func (mr *MockWalletsInterfaceMockRecorder) CaluculateBalance(chain, address any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CaluculateBalance", reflect.TypeOf((*MockWalletsInterface)(nil).CaluculateBalance), chain, address)
+}
+
 // ClearBlockChainTransactions mocks base method.
 func (m *MockWalletsInterface) ClearBlockChainTransactions(chain []*model.Block) error {
 	m.ctrl.T.Helper()

@@ -22,4 +22,5 @@ type WalletsInterface interface {
 	ClearTransactionPool()
 	ClearBlockChainTransactions(chain []*model.Block) error
 	NewRewardTransaction(tm time.TimeProvider) error
+	CaluculateBalance(chain []*model.Block, address string) (int, error)
 }

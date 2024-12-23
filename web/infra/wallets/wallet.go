@@ -3,6 +3,7 @@ package wallets
 import (
 	"crypto/ecdsa"
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 
 	"github.com/watariRyo/cryptochain-go/internal/ec"
@@ -31,4 +32,33 @@ func (ww *Wallets) CreateTransaction(recipient string, amount int, tm tm.TimePro
 		return fmt.Errorf("amount exceeds balance. amount:%d balance:%d", amount, ww.Wallet.Balance)
 	}
 	return newTransaction(ww, recipient, amount, tm)
+}
+
+func (ww *Wallets) CaluculateBalance(chain []*model.Block, address string) (int, error) {
+	outputsTotal := 0
+
+	for i := 1; i < len(chain); i++ {
+		block := chain[i]
+
+		var transaction model.Transaction
+		if err := json.Unmarshal([]byte(block.Data), &transaction); err != nil {
+			var transactions []*model.Transaction
+			if err := json.Unmarshal([]byte(block.Data), &transactions); err != nil {
+				return 0, err
+			}
+			for _, tr := range transactions {
+				addressOutput, ok := tr.OutputMap[address]
+				if ok {
+					outputsTotal = outputsTotal + addressOutput
+				}
+			}
+		}
+
+		addressOutput, ok := transaction.OutputMap[address]
+		if ok {
+			outputsTotal = outputsTotal + addressOutput
+		}
+	}
+
+	return block.STARTING_BALANCE + outputsTotal, nil
 }
