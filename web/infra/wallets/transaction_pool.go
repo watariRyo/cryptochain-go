@@ -3,7 +3,6 @@ package wallets
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
@@ -48,18 +47,26 @@ func (wtp *Wallets) ClearTransactionPool() {
 
 func (wtp *Wallets) ClearBlockChainTransactions(chain []*model.Block) error {
 	chainLength := len(chain)
-	fmt.Println("length: ", chainLength)
 	for i := 1; i < chainLength; i++ {
 		block := chain[i]
 		var transaction model.Transaction
 		if err := json.Unmarshal([]byte(block.Data), &transaction); err != nil {
-			return err
+			var transactions []*model.Transaction
+			if err := json.Unmarshal([]byte(block.Data), &transactions); err != nil {
+				return err
+			}
+			for _, tr := range transactions {
+				wtp.clearBlockChainTransaction(tr.Id)
+			}
 		}
-
-		_, ok := wtp.TransactionPool[transaction.Id]
-		if ok {
-			delete(wtp.TransactionPool, transaction.Id)
-		}
+		wtp.clearBlockChainTransaction(transaction.Id)
 	}
 	return nil
+}
+
+func (wtp *Wallets) clearBlockChainTransaction(id uuid.UUID) {
+	_, ok := wtp.TransactionPool[id]
+	if ok {
+		delete(wtp.TransactionPool, id)
+	}
 }

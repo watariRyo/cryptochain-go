@@ -94,13 +94,13 @@ func (mr *MockBlockChainInterfaceMockRecorder) ReplaceChain(chain, tm any) *gomo
 }
 
 // UnmarshalAndReplaceBlock mocks base method.
-func (m *MockBlockChainInterface) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider) {
+func (m *MockBlockChainInterface) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider, fn func([]*model.Block) error) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "UnmarshalAndReplaceBlock", payload, tm)
+	m.ctrl.Call(m, "UnmarshalAndReplaceBlock", payload, tm, fn)
 }
 
 // UnmarshalAndReplaceBlock indicates an expected call of UnmarshalAndReplaceBlock.
-func (mr *MockBlockChainInterfaceMockRecorder) UnmarshalAndReplaceBlock(payload, tm any) *gomock.Call {
+func (mr *MockBlockChainInterfaceMockRecorder) UnmarshalAndReplaceBlock(payload, tm, fn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnmarshalAndReplaceBlock", reflect.TypeOf((*MockBlockChainInterface)(nil).UnmarshalAndReplaceBlock), payload, tm)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnmarshalAndReplaceBlock", reflect.TypeOf((*MockBlockChainInterface)(nil).UnmarshalAndReplaceBlock), payload, tm, fn)
 }

@@ -80,7 +80,7 @@ func (c *RedisClient) Subscribe(ctx context.Context, tm time.TimeProvider) {
 		for msg := range ch {
 			if BLOCKCHAIN == CHANNELS(msg.Channel) {
 				payload := []byte(msg.Payload)
-				c.blockChain.UnmarshalAndReplaceBlock(payload, tm)
+				c.blockChain.UnmarshalAndReplaceBlock(payload, tm, c.wallets.ClearBlockChainTransactions)
 			}
 			if TRANSACTION == CHANNELS(msg.Channel) {
 				payload := []byte(msg.Payload)

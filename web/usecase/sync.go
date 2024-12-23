@@ -41,7 +41,7 @@ func (u *UseCase) syncChain() error {
 		return err
 	}
 
-	u.repo.BlockChain.UnmarshalAndReplaceBlock(payload, u.timeProvider)
+	u.repo.BlockChain.UnmarshalAndReplaceBlock(payload, u.timeProvider, nil)
 
 	return nil
 }

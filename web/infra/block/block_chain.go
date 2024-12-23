@@ -91,7 +91,7 @@ func (bc *BlockChain) ReplaceChain(block []*model.Block, tm time.TimeProvider) {
 	bc.block = block
 }
 
-func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider) {
+func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider, fn func([]*model.Block) error) {
 	var payloadBlock []*model.Block
 	if err := json.Unmarshal(payload, &payloadBlock); err != nil {
 		logger.Errorf(bc.ctx, "Could not unmarshal block chain. %v", err)
@@ -100,4 +100,11 @@ func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvi
 		block: payloadBlock,
 	}
 	bc.ReplaceChain(subscribeChain.block, tm)
+
+	if fn != nil {
+		if err := fn(payloadBlock); err != nil {
+			// ここに渡すのはclearTransactionのみ
+			logger.Errorf(bc.ctx, "Could not clear transaction. %v", err)
+		}
+	}
 }

@@ -10,5 +10,5 @@ type BlockChainInterface interface {
 	GetBlock() []*model.Block
 	IsValidChain() bool
 	ReplaceChain(chain []*model.Block, tm time.TimeProvider)
-	UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider)
+	UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider, fn func([]*model.Block) error)
 }

@@ -212,7 +212,7 @@ func TestReplaceChain(t *testing.T) {
 	}
 ]`
 
-			blockChain.UnmarshalAndReplaceBlock([]byte(newChain), realTimeProvider)
+			blockChain.UnmarshalAndReplaceBlock([]byte(newChain), realTimeProvider, nil)
 
 			if blockChain.block[1].Hash != "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d" {
 				t.Errorf("Chain should be replaced.")

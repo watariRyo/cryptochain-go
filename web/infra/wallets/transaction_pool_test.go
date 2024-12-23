@@ -3,6 +3,7 @@ package wallets
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
@@ -140,6 +141,53 @@ func Test_ClearBlockChainTransaction(t *testing.T) {
 			expectedTransactionMap[wallets.Transaction.Id] = wallets.Transaction
 		}
 	}
+	wallets.ClearBlockChainTransactions(blockChain.GetBlock())
+
+	if len(expectedTransactionMap) != len(wallets.TransactionPool) {
+		t.Errorf("Transaction pool count is missmatched got: %d want: %d", len(wallets.TransactionPool), len(expectedTransactionMap))
+	}
+
+	for expectedKey := range expectedTransactionMap {
+		isOk := false
+		for gotKey := range wallets.TransactionPool {
+			if expectedKey == gotKey {
+				isOk = true
+				break
+			}
+		}
+		if !isOk {
+			t.Errorf("Something that shouldn't have been deleted has been removed")
+		}
+	}
+}
+
+func Test_ClearBlockChainTransactionArray(t *testing.T) {
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	w, _ := NewWallet()
+	wallets := NewWallets(w, nil)
+	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+
+	// clears the pool of any existing blockchain transaction
+	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+
+	expectedTransactionMap := make(map[uuid.UUID]*model.Transaction)
+	var transactionArrays []*model.Transaction
+
+	for idx := range 6 {
+		wallets.CreateTransaction("foo", 20, mockTimeProvider)
+		wallets.SetTransaction(wallets.Transaction)
+
+		if idx%2 == 0 {
+			transactionArrays = append(transactionArrays, wallets.Transaction)
+		} else {
+			expectedTransactionMap[wallets.Transaction.Id] = wallets.Transaction
+		}
+	}
+	transactionBytes, _ := json.Marshal(transactionArrays)
+	fmt.Println(string(transactionBytes))
+	blockChain.AddBlock(string(transactionBytes), mockTimeProvider)
 	wallets.ClearBlockChainTransactions(blockChain.GetBlock())
 
 	if len(expectedTransactionMap) != len(wallets.TransactionPool) {
