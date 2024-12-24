@@ -9,7 +9,7 @@ import (
 )
 
 type WalletsInterface interface {
-	CreateTransaction(recipient string, amount int, tm time.TimeProvider) error
+	CreateTransaction(recipient string, amount int, chain []*model.Block, tm time.TimeProvider) error
 	ValidTransaction(ctx context.Context) bool
 	TransactionUpdate(senderWallet *model.Wallet, recpient string, amount int, tm time.TimeProvider) error
 	GetTransactionPool() map[uuid.UUID]*model.Transaction

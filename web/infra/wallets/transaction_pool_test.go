@@ -43,7 +43,7 @@ func Test_ExistingTransaction(t *testing.T) {
 
 	w, _ := NewWallet()
 	wallets := NewWallets(w, nil)
-	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	if wallets.ExistingTransaction() {
 		t.Errorf("should return false. not an existing transaction.")
@@ -108,7 +108,7 @@ func Test_ClearTransaction(t *testing.T) {
 
 	w, _ := NewWallet()
 	wallets := NewWallets(w, nil)
-	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	wallets.ClearTransactionPool()
 
@@ -123,7 +123,7 @@ func Test_ClearBlockChainTransaction(t *testing.T) {
 
 	w, _ := NewWallet()
 	wallets := NewWallets(w, nil)
-	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	// clears the pool of any existing blockchain transaction
 	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
@@ -131,7 +131,7 @@ func Test_ClearBlockChainTransaction(t *testing.T) {
 	expectedTransactionMap := make(map[uuid.UUID]*model.Transaction)
 
 	for idx := range 6 {
-		wallets.CreateTransaction("foo", 20, mockTimeProvider)
+		wallets.CreateTransaction("foo", 20, nil, mockTimeProvider)
 		wallets.SetTransaction(wallets.Transaction)
 
 		if idx%2 == 0 {
@@ -167,7 +167,7 @@ func Test_ClearBlockChainTransactionArray(t *testing.T) {
 
 	w, _ := NewWallet()
 	wallets := NewWallets(w, nil)
-	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	// clears the pool of any existing blockchain transaction
 	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
@@ -176,7 +176,7 @@ func Test_ClearBlockChainTransactionArray(t *testing.T) {
 	var transactionArrays []*model.Transaction
 
 	for idx := range 6 {
-		wallets.CreateTransaction("foo", 20, mockTimeProvider)
+		wallets.CreateTransaction("foo", 20, nil, mockTimeProvider)
 		wallets.SetTransaction(wallets.Transaction)
 
 		if idx%2 == 0 {

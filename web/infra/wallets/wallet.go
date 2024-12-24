@@ -27,7 +27,15 @@ func NewWallet() (*model.Wallet, error) {
 	}, nil
 }
 
-func (ww *Wallets) CreateTransaction(recipient string, amount int, tm tm.TimeProvider) error {
+func (ww *Wallets) CreateTransaction(recipient string, amount int, chain []*model.Block, tm tm.TimeProvider) error {
+	if len(chain) > 0 {
+		balance, err := ww.CaluculateBalance(chain, ww.Wallet.PublicKey)
+		if err != nil {
+			return err
+		}
+		ww.Wallet.Balance = balance
+	}
+
 	if amount > ww.Wallet.Balance {
 		return fmt.Errorf("amount exceeds balance. amount:%d balance:%d", amount, ww.Wallet.Balance)
 	}

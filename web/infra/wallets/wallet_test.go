@@ -46,7 +46,7 @@ func Test_CreateTrunsaction(t *testing.T) {
 		w, _ := NewWallet()
 		wallets := NewWallets(w, nil)
 
-		if err := wallets.CreateTransaction("foo-recipient", 999999, mockTimeProvider); err == nil {
+		if err := wallets.CreateTransaction("foo-recipient", 999999, nil, mockTimeProvider); err == nil {
 			t.Errorf("Amount exceeds balance. Should return error.")
 		}
 	})
@@ -56,7 +56,7 @@ func Test_CreateTrunsaction(t *testing.T) {
 		wallets := NewWallets(w, nil)
 		amount := 50
 		recipient := "foo-recipient"
-		err := wallets.CreateTransaction(recipient, amount, mockTimeProvider)
+		err := wallets.CreateTransaction(recipient, amount, nil, mockTimeProvider)
 		if err != nil {
 			t.Errorf("Something went wrong at CreateTransaction")
 		}
@@ -69,6 +69,23 @@ func Test_CreateTrunsaction(t *testing.T) {
 			t.Errorf("should match outputs the amount the recipient")
 		}
 	})
+
+	t.Run("a chain is passed", func(t *testing.T) {
+		w, _ := NewWallet()
+		wallets := NewWallets(w, nil)
+		amount := 50
+		recipient := "foo-recipient"
+
+		// calls CalculateBalance
+		blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+		err := wallets.CreateTransaction(recipient, amount, blockChain.GetBlock(), mockTimeProvider)
+		if err != nil {
+			t.Errorf("Something went wrong at CreateTransaction")
+		}
+		if block.STARTING_BALANCE != wallets.Wallet.Balance {
+			t.Errorf("Something went wrong at CreateTransaction")
+		}
+	})
 }
 
 func Test_CaluculateBalance(t *testing.T) {
@@ -77,7 +94,7 @@ func Test_CaluculateBalance(t *testing.T) {
 
 	w, _ := NewWallet()
 	wallets := NewWallets(w, nil)
-	wallets.CreateTransaction("hoge", 50, mockTimeProvider)
+	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
 
@@ -90,9 +107,9 @@ func Test_CaluculateBalance(t *testing.T) {
 		t.Errorf("failed to set genesis balanace")
 	}
 
-	wallets.CreateTransaction(wallets.Wallet.PublicKey, 50, mockTimeProvider)
+	wallets.CreateTransaction(wallets.Wallet.PublicKey, 50, nil, mockTimeProvider)
 	transactionOne := wallets.Transaction
-	wallets.CreateTransaction(wallets.Wallet.PublicKey, 60, mockTimeProvider)
+	wallets.CreateTransaction(wallets.Wallet.PublicKey, 60, nil, mockTimeProvider)
 	transactionTwo := wallets.Transaction
 
 	transactionOneBytes, _ := json.Marshal(transactionOne)

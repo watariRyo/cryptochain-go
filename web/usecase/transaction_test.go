@@ -68,16 +68,19 @@ func testTransact(createTransactoinCnt, transactionUpdateCnt, amount int, isTran
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
-	mrWallets.EXPECT().CreateTransaction(recipient, amount, mockTimeProvider).Times(createTransactoinCnt)
+	mrWallets.EXPECT().CreateTransaction(recipient, amount, gomock.Any(), mockTimeProvider).Times(createTransactoinCnt)
 	mrWallets.EXPECT().TransactionUpdate(gomock.Any(), recipient, amount, mockTimeProvider).Times(transactionUpdateCnt)
 
 	mrRedis := mockRepository.NewMockRedisClientInterface(ctrl)
 	ctx := context.Background()
 	mrRedis.EXPECT().Publish(ctx, string(redis.TRANSACTION), gomock.Any()).MaxTimes(1)
 
+	mrBlock := mockRepository.NewMockBlockChainInterface(ctrl)
+	mrBlock.EXPECT().GetBlock().Times(createTransactoinCnt)
+
 	return &UseCase{
 		ctx:          ctx,
 		timeProvider: mockTimeProvider,
-		repo:         &repository.AllRepository{Wallets: mrWallets, RedisClient: mrRedis},
+		repo:         &repository.AllRepository{Wallets: mrWallets, RedisClient: mrRedis, BlockChain: mrBlock},
 	}
 }

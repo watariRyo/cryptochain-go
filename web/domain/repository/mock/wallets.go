@@ -85,17 +85,17 @@ func (mr *MockWalletsInterfaceMockRecorder) ClearTransactionPool() *gomock.Call 
 }
 
 // CreateTransaction mocks base method.
-func (m *MockWalletsInterface) CreateTransaction(recipient string, amount int, tm time.TimeProvider) error {
+func (m *MockWalletsInterface) CreateTransaction(recipient string, amount int, chain []*model.Block, tm time.TimeProvider) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateTransaction", recipient, amount, tm)
+	ret := m.ctrl.Call(m, "CreateTransaction", recipient, amount, chain, tm)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateTransaction indicates an expected call of CreateTransaction.
-func (mr *MockWalletsInterfaceMockRecorder) CreateTransaction(recipient, amount, tm any) *gomock.Call {
+func (mr *MockWalletsInterfaceMockRecorder) CreateTransaction(recipient, amount, chain, tm any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTransaction", reflect.TypeOf((*MockWalletsInterface)(nil).CreateTransaction), recipient, amount, tm)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTransaction", reflect.TypeOf((*MockWalletsInterface)(nil).CreateTransaction), recipient, amount, chain, tm)
 }
 
 // ExistingTransaction mocks base method.

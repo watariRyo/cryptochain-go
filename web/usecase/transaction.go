@@ -16,7 +16,7 @@ func (u *UseCase) Transact(req *model.Transact) (map[uuid.UUID]*model.Transactio
 			return nil, err
 		}
 	} else {
-		err := u.repo.Wallets.CreateTransaction(req.Recipient, req.Amount, u.timeProvider)
+		err := u.repo.Wallets.CreateTransaction(req.Recipient, req.Amount, u.GetBlock(), u.timeProvider)
 		if err != nil {
 			return nil, err
 		}

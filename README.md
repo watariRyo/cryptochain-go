@@ -6,10 +6,12 @@
   - 簡易な Block, Chain, Wallet, Transaction の実装
   - Transaction Pool
   - handler
+  - Mine Transactions
   - P2P 実現のための PubSub
   - コンテナ仮想化
 - TODO
   - Mine Transactions
+    - 諸々validate
   - Frontend by React
   - Walletsパッケージの歪な依存改善または整理
 
