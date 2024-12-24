@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/watariRyo/cryptochain-go/internal/ec"
+	"github.com/watariRyo/cryptochain-go/web/domain/model"
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
 )
 
@@ -106,24 +107,96 @@ func Test_CaluculateBalance(t *testing.T) {
 	if gotStartingBalance != block.STARTING_BALANCE {
 		t.Errorf("failed to set genesis balanace")
 	}
+}
 
-	wallets.CreateTransaction(wallets.Wallet.PublicKey, 50, nil, mockTimeProvider)
-	transactionOne := wallets.Transaction
-	wallets.CreateTransaction(wallets.Wallet.PublicKey, 60, nil, mockTimeProvider)
-	transactionTwo := wallets.Transaction
+func Test_CaluculateBalanceAddSomeOfAllOutputsToTheWalletBalance(t *testing.T) {
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
-	transactionOneBytes, _ := json.Marshal(transactionOne)
-	transactionTwoBytes, _ := json.Marshal(transactionTwo)
-	blockChain.AddBlock(string(transactionOneBytes), mockTimeProvider)
-	blockChain.AddBlock(string(transactionTwoBytes), mockTimeProvider)
+	w, _ := NewWallet()
+	w1, _ := NewWallet()
+	wallets := NewWallets(w1, nil)
+	w2, _ := NewWallet()
+	wallets2 := NewWallets(w2, nil)
 
-	// addds the sum of all outputs to the wallet balance
-	got, err := wallets.CaluculateBalance(blockChain.GetBlock(), wallets.Wallet.PublicKey)
+	wallets.CreateTransaction(w.PublicKey, 50, nil, mockTimeProvider)
+	transactionOne := *wallets.Transaction
+
+	wallets2.CreateTransaction(w.PublicKey, 60, nil, mockTimeProvider)
+	transactionTwo := *wallets2.Transaction
+
+	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+
+	var transactions []*model.Transaction
+	transactions = append(transactions, &transactionOne, &transactionTwo)
+	transactionsByte, _ := json.Marshal(transactions)
+	blockChain.AddBlock(string(transactionsByte), mockTimeProvider)
+
+	got, err := wallets.CaluculateBalance(blockChain.GetBlock(), w.PublicKey)
 	if err != nil {
 		t.Errorf("calculate balance failed. err: %v", err)
 	}
-	want := block.STARTING_BALANCE + transactionOne.OutputMap[wallets.Wallet.PublicKey] + transactionTwo.OutputMap[wallets.Wallet.PublicKey]
+	want := block.STARTING_BALANCE + transactionOne.OutputMap[w.PublicKey] + transactionTwo.OutputMap[w.PublicKey]
 	if got != want {
 		t.Errorf("calculate balance failed to calculate. got: %d want: %d", got, want)
+	}
+}
+
+func Test_OutputAmountOfRecentTransaction(t *testing.T) {
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	w, _ := NewWallet()
+	wallets := NewWallets(w, nil)
+	wallets.CreateTransaction("foo-address", 30, nil, mockTimeProvider)
+
+	var transactions []*model.Transaction
+	transactions = append(transactions, wallets.Transaction)
+
+	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+	json, _ := json.Marshal(transactions)
+	blockChain.AddBlock(string(json), mockTimeProvider)
+
+	balance, err := wallets.CaluculateBalance(blockChain.GetBlock(), wallets.Wallet.PublicKey)
+	if err != nil {
+		t.Errorf("Something went wrong calculateBalance. %v", err)
+	}
+	if balance != wallets.Transaction.OutputMap[wallets.Wallet.PublicKey] {
+		t.Errorf("CalculateBalance calc failed. got: %d want: %d", balance, wallets.Transaction.OutputMap[wallets.Wallet.PublicKey])
+	}
+}
+
+func Test_OutputNextToAndAfterRecentTransaction(t *testing.T) {
+	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
+	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
+
+	w, _ := NewWallet()
+	wallets := NewWallets(w, nil)
+	wallets.CreateTransaction("later-foo-address", 60, nil, mockTimeProvider)
+
+	var transactions []*model.Transaction
+
+	recentTransaction := wallets.Transaction
+
+	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+
+	wallets.NewRewardTransaction(mockTimeProvider)
+	sameBlockTransaction := wallets.Transaction
+
+	wallets.CreateTransaction(wallets.Wallet.PublicKey, 75, nil, mockTimeProvider)
+	nextBlockTransaction := wallets.Transaction
+
+	transactions = append(transactions, recentTransaction, sameBlockTransaction, nextBlockTransaction)
+	json, _ := json.Marshal(transactions)
+	blockChain.AddBlock(string(json), mockTimeProvider)
+
+	// includes the output amounts in the returned balance
+	got, err := wallets.CaluculateBalance(blockChain.GetBlock(), wallets.Wallet.PublicKey)
+	if err != nil {
+		t.Errorf("Something went wrong calculateBalance. %v", err)
+	}
+	want := recentTransaction.OutputMap[wallets.Wallet.PublicKey] + sameBlockTransaction.OutputMap[wallets.Wallet.PublicKey] + nextBlockTransaction.OutputMap[wallets.Wallet.PublicKey]
+	if got != want {
+		t.Errorf("CalculateBalance calc failed. got: %d want: %d", got, want)
 	}
 }

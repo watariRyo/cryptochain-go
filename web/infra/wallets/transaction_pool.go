@@ -49,17 +49,13 @@ func (wtp *Wallets) ClearBlockChainTransactions(chain []*model.Block) error {
 	chainLength := len(chain)
 	for i := 1; i < chainLength; i++ {
 		block := chain[i]
-		var transaction model.Transaction
-		if err := json.Unmarshal([]byte(block.Data), &transaction); err != nil {
-			var transactions []*model.Transaction
-			if err := json.Unmarshal([]byte(block.Data), &transactions); err != nil {
-				return err
-			}
-			for _, tr := range transactions {
-				wtp.clearBlockChainTransaction(tr.Id)
-			}
+		var transactions []*model.Transaction
+		if err := json.Unmarshal([]byte(block.Data), &transactions); err != nil {
+			return err
 		}
-		wtp.clearBlockChainTransaction(transaction.Id)
+		for _, tr := range transactions {
+			wtp.clearBlockChainTransaction(tr.Id)
+		}
 	}
 	return nil
 }

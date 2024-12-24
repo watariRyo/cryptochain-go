@@ -43,30 +43,34 @@ func (ww *Wallets) CreateTransaction(recipient string, amount int, chain []*mode
 }
 
 func (ww *Wallets) CaluculateBalance(chain []*model.Block, address string) (int, error) {
+	hasConductedTransaction := false
 	outputsTotal := 0
 
-	for i := 1; i < len(chain); i++ {
+	for i := len(chain) - 1; i > 0; i-- {
 		block := chain[i]
 
-		var transaction model.Transaction
-		if err := json.Unmarshal([]byte(block.Data), &transaction); err != nil {
-			var transactions []*model.Transaction
-			if err := json.Unmarshal([]byte(block.Data), &transactions); err != nil {
-				return 0, err
-			}
-			for _, tr := range transactions {
-				addressOutput, ok := tr.OutputMap[address]
-				if ok {
-					outputsTotal = outputsTotal + addressOutput
-				}
-			}
+		var transactions []*model.Transaction
+		if err := json.Unmarshal([]byte(block.Data), &transactions); err != nil {
+			return 0, err
 		}
 
-		addressOutput, ok := transaction.OutputMap[address]
-		if ok {
-			outputsTotal = outputsTotal + addressOutput
+		for _, tr := range transactions {
+			if tr.Input.Address == address {
+				hasConductedTransaction = true
+			}
+			addressOutput, ok := tr.OutputMap[address]
+			if ok {
+				outputsTotal = outputsTotal + addressOutput
+			}
+		}
+		if hasConductedTransaction {
+			break
 		}
 	}
 
-	return block.STARTING_BALANCE + outputsTotal, nil
+	if hasConductedTransaction {
+		return outputsTotal, nil
+	} else {
+		return block.STARTING_BALANCE + outputsTotal, nil
+	}
 }

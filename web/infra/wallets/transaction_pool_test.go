@@ -135,7 +135,9 @@ func Test_ClearBlockChainTransaction(t *testing.T) {
 		wallets.SetTransaction(wallets.Transaction)
 
 		if idx%2 == 0 {
-			transacionBytes, _ := json.Marshal(wallets.Transaction)
+			var transactions []*model.Transaction
+			transactions = append(transactions, wallets.Transaction)
+			transacionBytes, _ := json.Marshal(transactions)
 			blockChain.AddBlock(string(transacionBytes), mockTimeProvider)
 		} else {
 			expectedTransactionMap[wallets.Transaction.Id] = wallets.Transaction
