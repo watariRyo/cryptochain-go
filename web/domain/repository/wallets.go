@@ -23,5 +23,5 @@ type WalletsInterface interface {
 	ClearBlockChainTransactions(chain []*model.Block) error
 	NewRewardTransaction(tm time.TimeProvider) error
 	CaluculateBalance(chain []*model.Block, address string) (int, error)
-	ValidTransactionData(chain []*model.Block) bool
+	ValidTransactionData(originalChain []*model.Block, chain []*model.Block) bool
 }

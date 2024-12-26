@@ -76,7 +76,7 @@ func (ww *Wallets) CaluculateBalance(chain []*model.Block, address string) (int,
 	}
 }
 
-func (ww *Wallets) ValidTransactionData(chain []*model.Block) bool {
+func (ww *Wallets) ValidTransactionData(originalChain []*model.Block, chain []*model.Block) bool {
 	for i := 1; i < len(chain); i++ {
 		block := chain[i]
 		rewardTransactionCount := 0
@@ -104,6 +104,16 @@ func (ww *Wallets) ValidTransactionData(chain []*model.Block) bool {
 			} else {
 				if !ww.validTransaction(ww.ctx, tr) {
 					logger.Errorf(ww.ctx, "Invalid Transaction Data")
+					return false
+				}
+
+				trueBalance, err := ww.CaluculateBalance(originalChain, tr.Input.Address)
+				if err != nil {
+					logger.Errorf(ww.ctx, "Failed to CalculateBalance")
+					return false
+				}
+				if tr.Input.Amount != trueBalance {
+					logger.Errorf(ww.ctx, "Invalid input amount. expected: %d got: %d", trueBalance, tr.Input.Amount)
 					return false
 				}
 			}
