@@ -201,7 +201,7 @@ func Test_OutputNextToAndAfterRecentTransaction(t *testing.T) {
 	}
 }
 
-// import cycle errorでblock側で検証できないので、こちらにトランザクションデータのvalidation test記載
+// import cycle errorでblock側に実装できない
 func Test_ValidTransactoinData(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
@@ -213,13 +213,12 @@ func Test_ValidTransactoinData(t *testing.T) {
 		wallet, _ := NewWallet()
 		wallets := NewWallets(context.TODO(), wallet, nil)
 		wallets.CreateTransaction("foo-address", 65, newChain.GetBlock(), mockTimeProvider)
-		transaction := *wallets.Transaction
+		transaction := wallets.Transaction
 		wallets.NewRewardTransaction(mockTimeProvider)
-		rewardTransaction := *wallets.Transaction
+		rewardTransaction := wallets.Transaction
 
-		// transactiondata is valid
 		var validTransactions []*model.Transaction
-		validTransactions = append(validTransactions, &transaction, &rewardTransaction)
+		validTransactions = append(validTransactions, transaction, rewardTransaction)
 		bytesValidTransactions, _ := json.Marshal(validTransactions)
 		newChain.AddBlock(string(bytesValidTransactions), mockTimeProvider)
 
@@ -240,7 +239,6 @@ func Test_ValidTransactoinData(t *testing.T) {
 		wallets.NewRewardTransaction(mockTimeProvider)
 		rewardTransaction := wallets.Transaction
 
-		// transactiondata is valid
 		var invalidTransactions []*model.Transaction
 		invalidTransactions = append(invalidTransactions, transaction, rewardTransaction, rewardTransaction)
 		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
@@ -264,7 +262,6 @@ func Test_ValidTransactoinData(t *testing.T) {
 		wallets.NewRewardTransaction(mockTimeProvider)
 		rewardTransaction := wallets.Transaction
 
-		// transactiondata is valid
 		var invalidTransactions []*model.Transaction
 		invalidTransactions = append(invalidTransactions, invalidTransaction, rewardTransaction)
 		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
@@ -288,7 +285,6 @@ func Test_ValidTransactoinData(t *testing.T) {
 		rewardTransaction := wallets.Transaction
 		rewardTransaction.OutputMap[wallet.PublicKey] = 99999
 
-		// transactiondata is valid
 		var invalidTransactions []*model.Transaction
 		invalidTransactions = append(invalidTransactions, validTransaction, rewardTransaction)
 		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
@@ -342,7 +338,24 @@ func Test_ValidTransactoinData(t *testing.T) {
 	})
 
 	t.Run("return false. a block contains multiple identical transactions", func(t *testing.T) {
+		blockChain := block.NewBlockChain(context.Background(), mockTimeProvider)
+		newChain := block.NewBlockChain(context.Background(), mockTimeProvider)
 
+		wallet, _ := NewWallet()
+		wallets := NewWallets(context.TODO(), wallet, nil)
+		wallets.CreateTransaction("foo-address", 65, newChain.GetBlock(), mockTimeProvider)
+		transaction := wallets.Transaction
+		wallets.NewRewardTransaction(mockTimeProvider)
+		rewardTransaction := wallets.Transaction
+
+		var invalidTransactions []*model.Transaction
+		invalidTransactions = append(invalidTransactions, transaction, transaction, rewardTransaction)
+		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
+		newChain.AddBlock(string(bytesValidTransactions), mockTimeProvider)
+
+		if wallets.ValidTransactionData(blockChain.GetBlock(), newChain.GetBlock()) {
+			t.Errorf("should be false a block contains multiple identical transactions. but true")
+		}
 	})
 
 }

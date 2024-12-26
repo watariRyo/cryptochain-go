@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/watariRyo/cryptochain-go/internal/ec"
 	"github.com/watariRyo/cryptochain-go/internal/logger"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
@@ -86,6 +87,8 @@ func (ww *Wallets) ValidTransactionData(originalChain []*model.Block, chain []*m
 			return false
 		}
 
+		transactionMap := make(map[uuid.UUID]bool)
+
 		for _, tr := range transactions {
 			if tr.Input.Address == REWARD_INPUT {
 				rewardTransactionCount += 1
@@ -115,6 +118,13 @@ func (ww *Wallets) ValidTransactionData(originalChain []*model.Block, chain []*m
 				if tr.Input.Amount != trueBalance {
 					logger.Errorf(ww.ctx, "Invalid input amount. expected: %d got: %d", trueBalance, tr.Input.Amount)
 					return false
+				}
+
+				if _, ok := transactionMap[tr.Id]; ok {
+					logger.Errorf(ww.ctx, "An identical transaction appears more than once in the block")
+					return false
+				} else {
+					transactionMap[tr.Id] = true
 				}
 			}
 		}
