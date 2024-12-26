@@ -18,7 +18,7 @@ func Test_TransactionPool(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	dummyRecipient := "dummy-reciepient"
 	amount := 50
 
@@ -42,7 +42,7 @@ func Test_ExistingTransaction(t *testing.T) {
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	if wallets.ExistingTransaction() {
@@ -59,7 +59,7 @@ func Test_ValidTransactins(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 
 	var validWantTransactions []*model.Transaction
 
@@ -107,7 +107,7 @@ func Test_ClearTransaction(t *testing.T) {
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	wallets.ClearTransactionPool()
@@ -122,7 +122,7 @@ func Test_ClearBlockChainTransaction(t *testing.T) {
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	// clears the pool of any existing blockchain transaction
@@ -168,7 +168,7 @@ func Test_ClearBlockChainTransactionArray(t *testing.T) {
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	// clears the pool of any existing blockchain transaction

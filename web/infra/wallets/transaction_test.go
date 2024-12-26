@@ -13,7 +13,7 @@ func Test_TransactionOutputsAmountToRecipient(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	dummyRecipient := "dummy-reciepient"
 	amount := 50
 	err := newTransaction(wallets, dummyRecipient, amount, mockTimeProvider)
@@ -29,7 +29,7 @@ func Test_TransactionOutputRemainingBalance(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	dummyRecipient := "dummy-reciepient"
 	amount := 50
 	err := newTransaction(wallets, dummyRecipient, amount, mockTimeProvider)
@@ -45,7 +45,7 @@ func Test_TransactionInput(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 
 	dummyRecipient := "dummy-reciepient"
 	amount := 50
@@ -75,7 +75,7 @@ func Test_ValidTransaction(t *testing.T) {
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	dummyRecipient := "dummy-reciepient"
 	amount := 50
 
@@ -114,7 +114,7 @@ func Test_Update(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	dummyRecipient := "dummy-reciepient"
 	amount := 50
 
@@ -154,7 +154,7 @@ func Test_UpdateAmountExceedsBalance(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 
 	dummyRecipient := "dummy-reciepient"
 	amount := 50
@@ -176,7 +176,7 @@ func Test_UpdateAddedRecipentAmount(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
-	wallets := NewWallets(w, nil)
+	wallets := NewWallets(context.TODO(), w, nil)
 	dummyRecipient := "dummy-reciepient"
 	amount := 50
 
@@ -204,7 +204,7 @@ func Test_NewRewardTransaction(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	minerWallet, _ := NewWallet()
-	wallets := NewWallets(minerWallet, nil)
+	wallets := NewWallets(context.TODO(), minerWallet, nil)
 
 	// create a transacion with the reward input
 	wallets.NewRewardTransaction(mockTimeProvider)

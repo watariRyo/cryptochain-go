@@ -220,6 +220,20 @@ func (mr *MockWalletsInterfaceMockRecorder) ValidTransaction(ctx any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidTransaction", reflect.TypeOf((*MockWalletsInterface)(nil).ValidTransaction), ctx)
 }
 
+// ValidTransactionData mocks base method.
+func (m *MockWalletsInterface) ValidTransactionData(chain []*model.Block) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidTransactionData", chain)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// ValidTransactionData indicates an expected call of ValidTransactionData.
+func (mr *MockWalletsInterfaceMockRecorder) ValidTransactionData(chain any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidTransactionData", reflect.TypeOf((*MockWalletsInterface)(nil).ValidTransactionData), chain)
+}
+
 // ValidTransactoins mocks base method.
 func (m *MockWalletsInterface) ValidTransactoins(ctx context.Context) []*model.Transaction {
 	m.ctrl.T.Helper()

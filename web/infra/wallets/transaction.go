@@ -91,7 +91,7 @@ func (wt *Wallets) validTransaction(ctx context.Context, transaction *model.Tran
 	}
 
 	if transaction.Input.Amount != total {
-		logger.Errorf(ctx, "Invalid transaction from %s", transaction.Input.Address)
+		logger.Errorf(ctx, "Invalid transaction from %s. amount: %d total: %d", transaction.Input.Address, transaction.Input.Amount, total)
 		return false
 	}
 

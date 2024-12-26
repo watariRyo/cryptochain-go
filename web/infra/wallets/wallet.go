@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/watariRyo/cryptochain-go/internal/ec"
+	"github.com/watariRyo/cryptochain-go/internal/logger"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
@@ -73,4 +74,40 @@ func (ww *Wallets) CaluculateBalance(chain []*model.Block, address string) (int,
 	} else {
 		return block.STARTING_BALANCE + outputsTotal, nil
 	}
+}
+
+func (ww *Wallets) ValidTransactionData(chain []*model.Block) bool {
+	for i := 1; i < len(chain); i++ {
+		block := chain[i]
+		rewardTransactionCount := 0
+
+		var transactions []*model.Transaction
+		if err := json.Unmarshal([]byte(block.Data), &transactions); err != nil {
+			return false
+		}
+
+		for _, tr := range transactions {
+			if tr.Input.Address == REWARD_INPUT {
+				rewardTransactionCount += 1
+
+				if rewardTransactionCount > 1 {
+					logger.Errorf(ww.ctx, "Miner reward exceed limit")
+					return false
+				}
+
+				for _, value := range tr.OutputMap {
+					if value != MINING_REWARD {
+						logger.Errorf(ww.ctx, "Miner reward amount is invalid")
+						return false
+					}
+				}
+			} else {
+				if !ww.validTransaction(ww.ctx, tr) {
+					logger.Errorf(ww.ctx, "Invalid Transaction Data")
+					return false
+				}
+			}
+		}
+	}
+	return true
 }

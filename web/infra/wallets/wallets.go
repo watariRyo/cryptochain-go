@@ -1,12 +1,15 @@
 package wallets
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 )
 
 type Wallets struct {
+	ctx             context.Context
 	Wallet          *model.Wallet
 	Transaction     *model.Transaction
 	TransactionPool map[uuid.UUID]*model.Transaction
@@ -14,8 +17,9 @@ type Wallets struct {
 
 var _ repository.WalletsInterface = (*Wallets)(nil)
 
-func NewWallets(wallet *model.Wallet, transaction *model.Transaction) *Wallets {
+func NewWallets(ctx context.Context, wallet *model.Wallet, transaction *model.Transaction) *Wallets {
 	return &Wallets{
+		ctx:             ctx,
 		Wallet:          wallet,
 		Transaction:     transaction,
 		TransactionPool: make(map[uuid.UUID]*model.Transaction),

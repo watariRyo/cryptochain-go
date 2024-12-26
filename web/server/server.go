@@ -30,7 +30,7 @@ func Run() {
 	if err != nil {
 		log.Panic(err)
 	}
-	wallets := wallets.NewWallets(wallet, nil)
+	wallets := wallets.NewWallets(ctx, wallet, nil)
 
 	configs, err := configs.Load()
 	if err != nil {
