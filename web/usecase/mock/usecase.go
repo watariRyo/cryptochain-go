@@ -69,6 +69,21 @@ func (mr *MockUseCaseInterfaceMockRecorder) GetTransactionPool() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionPool", reflect.TypeOf((*MockUseCaseInterface)(nil).GetTransactionPool))
 }
 
+// GetWalletInfo mocks base method.
+func (m *MockUseCaseInterface) GetWalletInfo() (*model.WalletInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWalletInfo")
+	ret0, _ := ret[0].(*model.WalletInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWalletInfo indicates an expected call of GetWalletInfo.
+func (mr *MockUseCaseInterfaceMockRecorder) GetWalletInfo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWalletInfo", reflect.TypeOf((*MockUseCaseInterface)(nil).GetWalletInfo))
+}
+
 // Mine mocks base method.
 func (m *MockUseCaseInterface) Mine(payload string) error {
 	m.ctrl.T.Helper()

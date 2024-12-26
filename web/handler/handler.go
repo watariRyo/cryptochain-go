@@ -77,3 +77,11 @@ func (handler *Handler) GetMineTransactions(w http.ResponseWriter, r *http.Reque
 	}
 	handler.GetBlocks(w, r)
 }
+
+func (handler *Handler) GetWalletInfo(w http.ResponseWriter, r *http.Request) {
+	walletInfo, err := handler.usecase.GetWalletInfo()
+	if err != nil {
+		handler.errorJSON(w, err, http.StatusInternalServerError)
+	}
+	handler.writeJSON(w, http.StatusOK, walletInfo)
+}
