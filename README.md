@@ -1,17 +1,21 @@
 # Go によるブロックチェーン基盤作成
 
-報酬やジェネシスブロックは適当
+報酬やジェネシスブロックは適当  
+いったんバックエンド完成
 
 - Done
   - 簡易な Block, Chain, Wallet, Transaction の実装
-  - Transaction Pool
+  - Transaction Pool, Mining
   - handler
   - Mine Transactions
   - P2P 実現のための PubSub
   - コンテナ仮想化
 - TODO
-  - Mine Transactions
-    - 諸々validate
+  - Validate
+    - Blockchain.isValidChain
+      - ハッシュが難易度要件を満たしている
+    - Wallet.createTransactionTransaction.verifyTransaction
+      - 負の金額が不可能
   - Frontend by React
   - Walletsパッケージの歪な依存改善または整理
 

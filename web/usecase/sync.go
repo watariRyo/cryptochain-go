@@ -41,7 +41,8 @@ func (u *UseCase) syncChain() error {
 		return err
 	}
 
-	u.repo.BlockChain.UnmarshalAndReplaceBlock(payload, u.timeProvider, nil)
+	validTransactionDataFn := u.repo.Wallets.ValidTransactionData
+	u.repo.BlockChain.UnmarshalAndReplaceBlock(payload, u.timeProvider, nil, validTransactionDataFn)
 
 	return nil
 }

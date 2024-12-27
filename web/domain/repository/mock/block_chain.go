@@ -82,25 +82,25 @@ func (mr *MockBlockChainInterfaceMockRecorder) IsValidChain() *gomock.Call {
 }
 
 // ReplaceChain mocks base method.
-func (m *MockBlockChainInterface) ReplaceChain(chain []*model.Block, tm time.TimeProvider) {
+func (m *MockBlockChainInterface) ReplaceChain(chain []*model.Block, tm time.TimeProvider, validTransactionDataFn func([]*model.Block, []*model.Block) bool) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ReplaceChain", chain, tm)
+	m.ctrl.Call(m, "ReplaceChain", chain, tm, validTransactionDataFn)
 }
 
 // ReplaceChain indicates an expected call of ReplaceChain.
-func (mr *MockBlockChainInterfaceMockRecorder) ReplaceChain(chain, tm any) *gomock.Call {
+func (mr *MockBlockChainInterfaceMockRecorder) ReplaceChain(chain, tm, validTransactionDataFn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceChain", reflect.TypeOf((*MockBlockChainInterface)(nil).ReplaceChain), chain, tm)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceChain", reflect.TypeOf((*MockBlockChainInterface)(nil).ReplaceChain), chain, tm, validTransactionDataFn)
 }
 
 // UnmarshalAndReplaceBlock mocks base method.
-func (m *MockBlockChainInterface) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider, fn func([]*model.Block) error) {
+func (m *MockBlockChainInterface) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider, fn func([]*model.Block) error, validTransactionDataFn func([]*model.Block, []*model.Block) bool) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "UnmarshalAndReplaceBlock", payload, tm, fn)
+	m.ctrl.Call(m, "UnmarshalAndReplaceBlock", payload, tm, fn, validTransactionDataFn)
 }
 
 // UnmarshalAndReplaceBlock indicates an expected call of UnmarshalAndReplaceBlock.
-func (mr *MockBlockChainInterfaceMockRecorder) UnmarshalAndReplaceBlock(payload, tm, fn any) *gomock.Call {
+func (mr *MockBlockChainInterfaceMockRecorder) UnmarshalAndReplaceBlock(payload, tm, fn, validTransactionDataFn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnmarshalAndReplaceBlock", reflect.TypeOf((*MockBlockChainInterface)(nil).UnmarshalAndReplaceBlock), payload, tm, fn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnmarshalAndReplaceBlock", reflect.TypeOf((*MockBlockChainInterface)(nil).UnmarshalAndReplaceBlock), payload, tm, fn, validTransactionDataFn)
 }

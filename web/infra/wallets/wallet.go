@@ -110,7 +110,7 @@ func (ww *Wallets) ValidTransactionData(originalChain []*model.Block, chain []*m
 					return false
 				}
 
-				trueBalance, err := ww.CaluculateBalance(originalChain, tr.Input.Address)
+				trueBalance, err := ww.CaluculateBalance(chain[0:i], tr.Input.Address)
 				if err != nil {
 					logger.Errorf(ww.ctx, "Failed to CalculateBalance")
 					return false

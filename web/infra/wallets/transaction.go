@@ -120,7 +120,7 @@ func (wt *Wallets) TransactionUpdate(senderWallet *model.Wallet, recpient string
 		wt.Transaction.OutputMap[recpient] = amount
 	}
 
-	wt.Transaction.OutputMap[senderWallet.PublicKey] -= amount
+	wt.Transaction.OutputMap[senderWallet.PublicKey] = wt.Transaction.OutputMap[senderWallet.PublicKey] - amount
 
 	newInput, err := createInput(tm, senderWallet, wt.Transaction.OutputMap)
 	if err != nil {

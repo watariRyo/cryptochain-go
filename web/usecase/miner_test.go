@@ -61,7 +61,7 @@ func Test_MineTransactions(t *testing.T) {
 	mr := mockRepository.NewMockRedisClientInterface(ctrl)
 	mr.EXPECT().Publish(ctx, string(redis.BLOCKCHAIN), gomock.Any()).MaxTimes(1)
 
-	mw.EXPECT().ClearTransactionPool().Times(1)
+	mw.EXPECT().ClearBlockChainTransactions(gomock.Any()).Times(1)
 
 	uc := &UseCase{
 		ctx:          ctx,

@@ -72,7 +72,7 @@ func (bc *BlockChain) IsValidChain() bool {
 	return true
 }
 
-func (bc *BlockChain) ReplaceChain(block []*model.Block, tm time.TimeProvider) {
+func (bc *BlockChain) ReplaceChain(block []*model.Block, tm time.TimeProvider, validTransactionDataFn func(param1 []*model.Block, param2 []*model.Block) bool) {
 	if len(block) <= len(bc.block) {
 		logger.Warnf(bc.ctx, "The incoming chain must be longer.")
 		return
@@ -87,19 +87,27 @@ func (bc *BlockChain) ReplaceChain(block []*model.Block, tm time.TimeProvider) {
 		logger.Errorf(bc.ctx, "The incoming chain must be valid.")
 		return
 	}
+	if validTransactionDataFn != nil {
+		if !validTransactionDataFn(bc.block, block) {
+			logger.Errorf(bc.ctx, "Invalid transaction data. did not replace chain")
+			return
+		}
+	}
 
 	bc.block = block
 }
 
-func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider, fn func([]*model.Block) error) {
+func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider, fn func([]*model.Block) error, validTransactionDataFn func(param1 []*model.Block, param2 []*model.Block) bool) {
 	var payloadBlock []*model.Block
 	if err := json.Unmarshal(payload, &payloadBlock); err != nil {
 		logger.Errorf(bc.ctx, "Could not unmarshal block chain. %v", err)
+		return
 	}
 	subscribeChain := &BlockChain{
 		block: payloadBlock,
 	}
-	bc.ReplaceChain(subscribeChain.block, tm)
+
+	bc.ReplaceChain(subscribeChain.block, tm, validTransactionDataFn)
 
 	if fn != nil {
 		if err := fn(payloadBlock); err != nil {

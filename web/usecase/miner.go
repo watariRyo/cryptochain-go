@@ -21,14 +21,15 @@ func (u *UseCase) MineTransactions() error {
 	}
 	u.repo.BlockChain.AddBlock(string(validTransactionBytes), u.timeProvider)
 
-	broadcastChain, err := json.Marshal(u.repo.BlockChain.GetBlock())
+	chain := u.repo.BlockChain.GetBlock()
+	broadcastChain, err := json.Marshal(chain)
 	if err != nil {
 		return err
 	}
 
 	go u.repo.RedisClient.Publish(u.ctx, string(redis.BLOCKCHAIN), string(broadcastChain))
 
-	u.repo.Wallets.ClearTransactionPool()
+	u.repo.Wallets.ClearBlockChainTransactions(chain)
 
 	return nil
 }

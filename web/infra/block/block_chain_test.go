@@ -11,6 +11,7 @@ import (
 
 	"github.com/watariRyo/cryptochain-go/internal/crypto"
 	tm "github.com/watariRyo/cryptochain-go/internal/time"
+	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
 
 func TestChainStartWithGenesis(t *testing.T) {
@@ -138,7 +139,8 @@ func TestReplaceChain(t *testing.T) {
 
 		newChain.block[0].Data = `{ "new" : "new-chain" }`
 
-		blockChain.ReplaceChain(newChain.block, realTimeProvider)
+		dummyValidFunc := func([]*model.Block, []*model.Block) bool { return true }
+		blockChain.ReplaceChain(newChain.block, realTimeProvider, dummyValidFunc)
 
 		if blockChain.block[0].Data != originalChain[0].Data {
 			t.Errorf("When the new chain is not longer. should not replace the chain")
@@ -160,7 +162,8 @@ func TestReplaceChain(t *testing.T) {
 
 			newChain.block[2].Hash = "some-fake-hash"
 
-			blockChain.ReplaceChain(newChain.block, realTimeProvider)
+			dummyValidFunc := func([]*model.Block, []*model.Block) bool { return true }
+			blockChain.ReplaceChain(newChain.block, realTimeProvider, dummyValidFunc)
 
 			if !reflect.DeepEqual(blockChain.block, originalChain) {
 				t.Errorf("When the chain is invalid. should not replace the chain")
@@ -175,7 +178,8 @@ func TestReplaceChain(t *testing.T) {
 			newChain.AddBlock(`{"data": "Bears"}`, realTimeProvider)
 			newChain.AddBlock(`{"data": "Battlestar Galactica"}`, realTimeProvider)
 
-			blockChain.ReplaceChain(newChain.block, realTimeProvider)
+			dummyValidFunc := func([]*model.Block, []*model.Block) bool { return true }
+			blockChain.ReplaceChain(newChain.block, realTimeProvider, dummyValidFunc)
 
 			if !reflect.DeepEqual(blockChain.block[2], newChain.block[2]) {
 				t.Errorf("Chain should be replaced.")
@@ -212,7 +216,9 @@ func TestReplaceChain(t *testing.T) {
 	}
 ]`
 
-			blockChain.UnmarshalAndReplaceBlock([]byte(newChain), realTimeProvider, nil)
+			dummyValidFunc := func([]*model.Block, []*model.Block) bool { return true }
+
+			blockChain.UnmarshalAndReplaceBlock([]byte(newChain), realTimeProvider, nil, dummyValidFunc)
 
 			if blockChain.block[1].Hash != "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d" {
 				t.Errorf("Chain should be replaced.")
@@ -221,5 +227,47 @@ func TestReplaceChain(t *testing.T) {
 				t.Errorf("Chain should be replaced.")
 			}
 		})
+
+		t.Run("when the data has invalid transaction does not replace the chain.", func(t *testing.T) {
+			blockChain := NewBlockChain(context.Background(), mockTimeProvider)
+			newChain := `
+[
+	{
+		"Timestamp": "2024-12-11T06:18:29.851186Z",
+		"LastHash": "____",
+		"Hash": "hash-one",
+		"Difficulty": 3,
+		"Nonce": 0,
+		"Data": "{ \"one\": \"one\" }"
+	},
+	{
+		"Timestamp": "2024-12-11T06:18:41.054109Z",
+		"LastHash": "hash-one",
+		"Hash": "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d",
+		"Difficulty": 2,
+		"Nonce": 5,
+		"Data": "hoge7"
+	},
+	{
+		"Timestamp": "2024-12-11T06:18:46.045773Z",
+		"LastHash": "011bb76eb7a896c2838f5330d543001bd60704a441b221805ab871ed54ed816d",
+		"Hash": "17d5667d15847f6b8613c1b6fddb254446065054f1f06e693a97ef9b56fdbca1",
+		"Difficulty": 1,
+		"Nonce": 2,
+		"Data": "hoge7"
+	}
+]`
+
+			dummyValidFunc := func([]*model.Block, []*model.Block) bool { return false }
+
+			expectedLength := len(blockChain.block)
+
+			blockChain.UnmarshalAndReplaceBlock([]byte(newChain), realTimeProvider, nil, dummyValidFunc)
+
+			if len(blockChain.block) != expectedLength {
+				t.Errorf("Chain should be not replaced.")
+			}
+		})
 	})
+
 }
