@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestCryptoHashSHA256(t *testing.T) {
+func Test_CryptoHashSHA256(t *testing.T) {
 	expected := "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
 	sum := CryptoHash("foo")
 
@@ -32,7 +32,7 @@ func Test_ProducesUniqueHash(t *testing.T) {
 	}
 }
 
-func TestCharToBinary(t *testing.T) {
+func Test_CharToBinary(t *testing.T) {
 	tests := []struct {
 		input    rune
 		expected int

@@ -87,6 +87,23 @@ func Test_CreateTrunsaction(t *testing.T) {
 			t.Errorf("Something went wrong at CreateTransaction")
 		}
 	})
+
+	t.Run("amount less than or equal zero", func(t *testing.T) {
+		w, _ := NewWallet()
+		wallets := NewWallets(context.TODO(), w, nil)
+		recipient := "foo-recipient"
+
+		// calls CalculateBalance
+		blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+		err := wallets.CreateTransaction(recipient, -1, blockChain.GetBlock(), mockTimeProvider)
+		if err == nil {
+			t.Errorf("CreateTransaction should be return err when amount is less than zero")
+		}
+		err = wallets.CreateTransaction(recipient, 0, blockChain.GetBlock(), mockTimeProvider)
+		if err == nil {
+			t.Errorf("CreateTransaction should be return err when amount is equal zero")
+		}
+	})
 }
 
 func Test_CaluculateBalance(t *testing.T) {

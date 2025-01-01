@@ -11,11 +11,6 @@
   - P2P 実現のための PubSub
   - コンテナ仮想化
 - TODO
-  - Validate
-    - Blockchain.isValidChain
-      - ハッシュが難易度要件を満たしている
-    - Wallet.createTransactionTransaction.verifyTransaction
-      - 負の金額が不可能
   - Frontend by React
   - Walletsパッケージの歪な依存改善または整理
 

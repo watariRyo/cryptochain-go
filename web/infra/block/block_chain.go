@@ -3,6 +3,7 @@ package block
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"math"
 	"reflect"
 	"strconv"
@@ -59,7 +60,11 @@ func (bc *BlockChain) IsValidChain() bool {
 		difficulty := block.Difficulty
 
 		validatedHash := crypto.CryptoHash(block.Timestamp, strconv.Itoa(nonce), strconv.Itoa(difficulty), block.LastHash, block.Data)
+
 		if block.Hash != validatedHash {
+			return false
+		}
+		if !bc.isValidDifficulty(difficulty, block.Hash) {
 			return false
 		}
 		if math.Abs(float64(lastDifficulty-difficulty)) > 1 {
@@ -67,6 +72,27 @@ func (bc *BlockChain) IsValidChain() bool {
 		}
 		actualLastHash = block.Hash
 		lastDifficulty = block.Difficulty
+	}
+
+	return true
+}
+
+func (bc *BlockChain) isValidDifficulty(difficulty int, blockHash string) bool {
+	checkCount := difficulty
+	binary := ""
+	for _, char := range blockHash {
+		value := crypto.CharToBinary(char)
+		binary += fmt.Sprintf("%04b", value)
+	}
+	for idx, hashRune := range binary {
+		if checkCount == idx {
+			break
+		}
+
+		char := fmt.Sprint(string(hashRune))
+		if char != "0" {
+			return false
+		}
 	}
 
 	return true

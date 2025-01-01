@@ -30,6 +30,10 @@ func NewWallet() (*model.Wallet, error) {
 }
 
 func (ww *Wallets) CreateTransaction(recipient string, amount int, chain []*model.Block, tm tm.TimeProvider) error {
+	if amount <= 0 {
+		return fmt.Errorf("amount must be greater than zero")
+	}
+
 	if len(chain) > 0 {
 		balance, err := ww.CaluculateBalance(chain, ww.Wallet.PublicKey)
 		if err != nil {

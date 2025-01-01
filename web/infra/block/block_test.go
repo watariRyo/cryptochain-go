@@ -15,7 +15,7 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
 
-func TestCreateNewBlock(t *testing.T) {
+func Test_CreateNewBlock(t *testing.T) {
 	timestamp := tm.MicroParseString(time.Now())
 	hash := "test_hash"
 	lastHash := "test_last_hash"
@@ -45,7 +45,7 @@ func TestCreateNewBlock(t *testing.T) {
 	}
 }
 
-func TestGenesisBlock(t *testing.T) {
+func Test_GenesisBlock(t *testing.T) {
 	timestamp := tm.MicroParseString(time.Now())
 	got := *newGenesisBlock(timestamp)
 	genesis := newGenesis(timestamp)
@@ -64,7 +64,7 @@ func TestGenesisBlock(t *testing.T) {
 	}
 }
 
-func TestMineBlock(t *testing.T) {
+func Test_MineBlock(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -88,7 +88,7 @@ func TestMineBlock(t *testing.T) {
 	}
 }
 
-func TestMatchDifficultyCriteria(t *testing.T) {
+func Test_MatchDifficultyCriteria(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -112,7 +112,7 @@ func TestMatchDifficultyCriteria(t *testing.T) {
 	}
 }
 
-func TestAdjustDifficulty(t *testing.T) {
+func Test_AdjustDifficulty(t *testing.T) {
 	data := "mined data"
 
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
@@ -150,7 +150,7 @@ func TestAdjustDifficulty(t *testing.T) {
 	}
 }
 
-func TestAdjustDifficultyLowerLimit(t *testing.T) {
+func Test_AdjustDifficultyLowerLimit(t *testing.T) {
 	data := "mined data"
 
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)

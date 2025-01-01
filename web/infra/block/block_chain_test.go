@@ -14,7 +14,7 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
 
-func TestChainStartWithGenesis(t *testing.T) {
+func Test_ChainStartWithGenesis(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -27,7 +27,7 @@ func TestChainStartWithGenesis(t *testing.T) {
 	}
 }
 
-func TestAddNewBlockChain(t *testing.T) {
+func Test_AddNewBlockChain(t *testing.T) {
 	want := `{ "foo": "bar" }`
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockProvider := &MockTimeProvider{MockTime: mockTime}
@@ -46,7 +46,7 @@ func TestAddNewBlockChain(t *testing.T) {
 	}
 }
 
-func TestValidChain(t *testing.T) {
+func Test_ValidChain(t *testing.T) {
 	t.Run("when the chain does not start with the genesis block", func(t *testing.T) {
 		mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 		mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
@@ -126,10 +126,24 @@ func TestValidChain(t *testing.T) {
 				t.Errorf("When the chain does not contain any invalid blocks. isValidChain should be true.")
 			}
 		})
+
+		t.Run("and the chain does not meet the difficulty level", func(t *testing.T) {
+			blockChain := NewBlockChain(context.Background(), realTimeProvider)
+			blockChain.AddBlock(`{"data": "Bears"}`, realTimeProvider)
+			blockChain.AddBlock(`{"data": "Bears"}`, realTimeProvider)
+			blockChain.AddBlock(`{"data": "Battlestar Galactica"}`, realTimeProvider)
+
+			blockChain.block[2].Difficulty = 1
+
+			isValidChain := blockChain.IsValidChain()
+			if isValidChain {
+				t.Errorf("When the chain does not meet the difficulty level. isValidChain should be false.")
+			}
+		})
 	})
 }
 
-func TestReplaceChain(t *testing.T) {
+func Test_ReplaceChain(t *testing.T) {
 	t.Run("When the new chain is not longer. does not replace the chain.", func(t *testing.T) {
 		realTimeProvider := &tm.RealTimeProvider{}
 

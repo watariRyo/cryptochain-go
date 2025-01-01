@@ -11,10 +11,8 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
 
-
-
 func newBlock(timestamp string, lastHash, hash, data string, nonce, difficulty int) *model.Block {
-	return &model.Block {
+	return &model.Block{
 		Timestamp:  timestamp,
 		LastHash:   lastHash,
 		Hash:       hash,
