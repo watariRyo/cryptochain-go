@@ -37,6 +37,15 @@
 
 - 環境変数の設定、他 Config
 
+### internal/crypto
+
+- hash関連処理
+
+### internal/ec
+
+- 楕円曲線暗号の実装
+  - TODO：pkg切り出したい
+
 ### internal/logger
 
 - 共通 logger
@@ -65,8 +74,6 @@
     ブロックの定義、作成、検証、マイニング調整の実施
   - block_chain  
     チェーンの管理、検証、チェーンへのブロック追加
-  - crypto_hash  
-    ハッシュ作成
   - genesis  
     ジェネシスブロックの作成
 
@@ -77,6 +84,12 @@
 ### web/infra/wallets
 
 - WalletとTransactionの実装
+  - wallet  
+    wallet関連処理。transactionの作成トリガー
+  - transaction  
+    transaction関連  
+  - transaction_pool  
+    transactionを保持・操作する。map使用 
 
 ### web/handler
 
@@ -88,7 +101,7 @@
 
 ### web/usecase
 
-- ブロック等に直接触れないロジック部
+- ロジック部。ブロック等には直接触れない。メソッド呼び出し、Publish
 
 ## Dependencies
 
