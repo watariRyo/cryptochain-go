@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/watariRyo/cryptochain-go/internal/ec"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 	mockRepository "github.com/watariRyo/cryptochain-go/web/domain/repository/mock"
 	"github.com/watariRyo/cryptochain-go/web/infra/redis"
-	"go.uber.org/mock/gomock"
 )
 
 func Test_GetTransactionPool(t *testing.T) {
@@ -26,25 +26,25 @@ func Test_GetTransactionPool(t *testing.T) {
 	uc.GetTransactionPool()
 }
 
-func Test_TransactExist(t *testing.T) {
+func TestTransactExist(t *testing.T) {
 	recipient := "test"
 	amount := 50
 
 	uc := testTransact(0, 1, amount, true, recipient, t)
 
-	uc.Transact(&model.Transact{
+	uc.Transact(context.TODO(), &model.Transact{
 		Amount:    amount,
 		Recipient: recipient,
 	})
 }
 
-func Test_TransactNotExist(t *testing.T) {
+func TestTransactNotExist(t *testing.T) {
 	recipient := "test"
 	amount := 50
 
 	uc := testTransact(1, 0, amount, false, recipient, t)
 
-	uc.Transact(&model.Transact{
+	uc.Transact(context.TODO(), &model.Transact{
 		Amount:    amount,
 		Recipient: recipient,
 	})
@@ -72,14 +72,12 @@ func testTransact(createTransactoinCnt, transactionUpdateCnt, amount int, isTran
 	mrWallets.EXPECT().TransactionUpdate(gomock.Any(), recipient, amount, mockTimeProvider).Times(transactionUpdateCnt)
 
 	mrRedis := mockRepository.NewMockRedisClientInterface(ctrl)
-	ctx := context.Background()
-	mrRedis.EXPECT().Publish(ctx, string(redis.TRANSACTION), gomock.Any()).MaxTimes(1)
+	mrRedis.EXPECT().Publish(gomock.Any(), string(redis.TRANSACTION), gomock.Any()).MaxTimes(1)
 
 	mrBlock := mockRepository.NewMockBlockChainInterface(ctrl)
 	mrBlock.EXPECT().GetBlock().Times(createTransactoinCnt)
 
 	return &UseCase{
-		ctx:          ctx,
 		timeProvider: mockTimeProvider,
 		repo:         &repository.AllRepository{Wallets: mrWallets, RedisClient: mrRedis, BlockChain: mrBlock},
 	}

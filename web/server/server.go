@@ -18,14 +18,13 @@ import (
 )
 
 type Server struct {
-	ctx     context.Context
 	handler *handler.Handler
 }
 
 func Run() {
 	realTimeProvider := &time.RealTimeProvider{}
 	ctx := context.Background()
-	blockChain := block.NewBlockChain(ctx, realTimeProvider)
+	blockChain := block.NewBlockChain(realTimeProvider)
 	wallet, err := wallets.NewWallet()
 	if err != nil {
 		log.Panic(err)
@@ -45,12 +44,11 @@ func Run() {
 	// dependencies
 	repo := repository.NewRepository(redisClient, blockChain, wallets)
 
-	usecase := usecase.NewUseCase(ctx, realTimeProvider, repo, configs)
+	usecase := usecase.NewUseCase(realTimeProvider, repo, configs)
 
-	handler := handler.NewHandler(ctx, usecase, configs)
+	handler := handler.NewHandler(usecase, configs)
 
 	server := Server{
-		ctx:     ctx,
 		handler: handler,
 	}
 
@@ -69,7 +67,7 @@ func Run() {
 
 	go func() {
 		if configs.Server.DefaultPort != configs.Server.Port {
-			err = usecase.SyncWithRootState()
+			err = usecase.SyncWithRootState(context.Background())
 			if err != nil {
 				log.Panic(err)
 			}

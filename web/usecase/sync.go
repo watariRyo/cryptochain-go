@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,15 +12,15 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 )
 
-func (u *UseCase) SyncWithRootState() error {
+func (u *UseCase) SyncWithRootState(ctx context.Context) error {
 	// Sync Chain
-	err := u.syncChain()
+	err := u.syncChain(ctx)
 	if err != nil {
 		return err
 	}
 
 	// Sync Transaction
-	err = u.syncTransaction()
+	err = u.syncTransaction(ctx)
 	if err != nil {
 		return err
 	}
@@ -27,7 +28,7 @@ func (u *UseCase) SyncWithRootState() error {
 	return nil
 }
 
-func (u *UseCase) syncChain() error {
+func (u *UseCase) syncChain(ctx context.Context) error {
 	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/blocks", u.configs.Host), nil)
 	if err != nil {
 		return err
@@ -42,12 +43,12 @@ func (u *UseCase) syncChain() error {
 	}
 
 	validTransactionDataFn := u.repo.Wallets.ValidTransactionData
-	u.repo.BlockChain.UnmarshalAndReplaceBlock(payload, u.timeProvider, nil, validTransactionDataFn)
+	u.repo.BlockChain.UnmarshalAndReplaceBlock(ctx, payload, u.timeProvider, nil, validTransactionDataFn)
 
 	return nil
 }
 
-func (u *UseCase) syncTransaction() error {
+func (u *UseCase) syncTransaction(ctx context.Context) error {
 	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/transaction-pool-map", u.configs.Host), nil)
 	if err != nil {
 		return err
@@ -63,7 +64,7 @@ func (u *UseCase) syncTransaction() error {
 
 	var payloadTransaction map[uuid.UUID]*model.Transaction
 	if err := json.Unmarshal(payload, &payloadTransaction); err != nil {
-		logger.Errorf(u.ctx, "Could not unmarshal transaction. %v", err)
+		logger.Errorf(ctx, "Could not unmarshal transaction. %v", err)
 	}
 
 	u.repo.Wallets.SetMap(payloadTransaction)

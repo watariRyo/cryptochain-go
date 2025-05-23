@@ -14,7 +14,7 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
 )
 
-func Test_TransactionPool(t *testing.T) {
+func TestTransactionPool(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
@@ -37,7 +37,7 @@ func Test_TransactionPool(t *testing.T) {
 	}
 }
 
-func Test_ExistingTransaction(t *testing.T) {
+func TestExistingTransaction(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -55,7 +55,7 @@ func Test_ExistingTransaction(t *testing.T) {
 	}
 }
 
-func Test_ValidTransactins(t *testing.T) {
+func TestValidTransactins(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
@@ -63,7 +63,7 @@ func Test_ValidTransactins(t *testing.T) {
 
 	var validWantTransactions []*model.Transaction
 
-	for idx := range 10 {
+	for idx := 0; idx < 10; idx++ {
 		newTransaction(wallets, "any-recipient", 30, mockTimeProvider)
 		transaction := wallets.Transaction
 
@@ -102,7 +102,7 @@ func Test_ValidTransactins(t *testing.T) {
 	}
 }
 
-func Test_ClearTransaction(t *testing.T) {
+func TestClearTransaction(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -117,7 +117,7 @@ func Test_ClearTransaction(t *testing.T) {
 	}
 }
 
-func Test_ClearBlockChainTransaction(t *testing.T) {
+func TestClearBlockChainTransaction(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -126,11 +126,11 @@ func Test_ClearBlockChainTransaction(t *testing.T) {
 	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	// clears the pool of any existing blockchain transaction
-	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+	blockChain := block.NewBlockChain(mockTimeProvider)
 
 	expectedTransactionMap := make(map[uuid.UUID]*model.Transaction)
 
-	for idx := range 6 {
+	for idx := 0; idx < 6; idx++ {
 		wallets.CreateTransaction("foo", 20, nil, mockTimeProvider)
 		wallets.SetTransaction(wallets.Transaction)
 
@@ -163,7 +163,7 @@ func Test_ClearBlockChainTransaction(t *testing.T) {
 	}
 }
 
-func Test_ClearBlockChainTransactionArray(t *testing.T) {
+func TestClearBlockChainTransactionArray(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -172,12 +172,12 @@ func Test_ClearBlockChainTransactionArray(t *testing.T) {
 	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
 	// clears the pool of any existing blockchain transaction
-	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+	blockChain := block.NewBlockChain(mockTimeProvider)
 
 	expectedTransactionMap := make(map[uuid.UUID]*model.Transaction)
 	var transactionArrays []*model.Transaction
 
-	for idx := range 6 {
+	for idx := 0; idx < 6; idx++ {
 		wallets.CreateTransaction("foo", 20, nil, mockTimeProvider)
 		wallets.SetTransaction(wallets.Transaction)
 

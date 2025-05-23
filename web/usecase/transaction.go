@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/google/uuid"
@@ -8,7 +9,7 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/infra/redis"
 )
 
-func (u *UseCase) Transact(req *model.Transact) (map[uuid.UUID]*model.Transaction, error) {
+func (u *UseCase) Transact(ctx context.Context, req *model.Transact) (map[uuid.UUID]*model.Transaction, error) {
 	wallet := u.repo.Wallets.GetWallet()
 	if u.repo.Wallets.ExistingTransaction() {
 		err := u.repo.Wallets.TransactionUpdate(wallet, req.Recipient, req.Amount, u.timeProvider)
@@ -31,7 +32,7 @@ func (u *UseCase) Transact(req *model.Transact) (map[uuid.UUID]*model.Transactio
 		return nil, err
 	}
 
-	go u.repo.RedisClient.Publish(u.ctx, string(redis.TRANSACTION), string(broadcastTransaction))
+	go u.repo.RedisClient.Publish(ctx, string(redis.TRANSACTION), string(broadcastTransaction))
 
 	pool := u.repo.Wallets.GetTransactionPool()
 

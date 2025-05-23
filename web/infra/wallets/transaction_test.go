@@ -9,7 +9,7 @@ import (
 	"github.com/watariRyo/cryptochain-go/internal/ec"
 )
 
-func Test_TransactionOutputsAmountToRecipient(t *testing.T) {
+func TestTransactionOutputsAmountToRecipient(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
@@ -25,7 +25,7 @@ func Test_TransactionOutputsAmountToRecipient(t *testing.T) {
 	}
 }
 
-func Test_TransactionOutputRemainingBalance(t *testing.T) {
+func TestTransactionOutputRemainingBalance(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
@@ -41,7 +41,7 @@ func Test_TransactionOutputRemainingBalance(t *testing.T) {
 	}
 }
 
-func Test_TransactionInput(t *testing.T) {
+func TestTransactionInput(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
@@ -70,7 +70,7 @@ func Test_TransactionInput(t *testing.T) {
 	}
 }
 
-func Test_ValidTransaction(t *testing.T) {
+func TestValidTransaction(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -110,7 +110,7 @@ func Test_ValidTransaction(t *testing.T) {
 	})
 }
 
-func Test_Update(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
@@ -150,7 +150,7 @@ func Test_Update(t *testing.T) {
 	}
 }
 
-func Test_UpdateAmountExceedsBalance(t *testing.T) {
+func TestUpdateAmountExceedsBalance(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
@@ -172,7 +172,7 @@ func Test_UpdateAmountExceedsBalance(t *testing.T) {
 	}
 }
 
-func Test_UpdateAddedRecipentAmount(t *testing.T) {
+func TestUpdateAddedRecipentAmount(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	w, _ := NewWallet()
@@ -200,7 +200,7 @@ func Test_UpdateAddedRecipentAmount(t *testing.T) {
 	}
 }
 
-func Test_NewRewardTransaction(t *testing.T) {
+func TestNewRewardTransaction(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	minerWallet, _ := NewWallet()

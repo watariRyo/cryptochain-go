@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func Test_routes_exist(t *testing.T) {
+func TestRoutesExist(t *testing.T) {
 	testServer := &Server{}
 
 	testRoutes := testServer.Routes()

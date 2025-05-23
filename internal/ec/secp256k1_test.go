@@ -7,7 +7,7 @@ import (
 )
 
 // ロジックではなくキー生成と曲線上の検証をする
-func Test_GenerateKey(t *testing.T) {
+func TestGenerateKey(t *testing.T) {
 	// secp256k1曲線を取得
 	curve := Secp256k1()
 

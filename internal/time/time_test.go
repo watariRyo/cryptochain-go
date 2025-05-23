@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func Test_MicroParseString(t *testing.T) {
+func TestMicroParseString(t *testing.T) {
 	testTime := time.Date(2023, time.January, 1, 23, 59, 59, 0, time.Local)
 	got := MicroParseString(testTime)
 	want := "2023-01-01T23:59:59.000000Z"
@@ -14,7 +14,7 @@ func Test_MicroParseString(t *testing.T) {
 	}
 }
 
-func Test_MicroParse(t *testing.T) {
+func TestMicroParse(t *testing.T) {
 	want := time.Date(2023, time.January, 1, 23, 59, 59, 0, time.UTC)
 	seed := "2023-01-01T23:59:59.000000Z"
 	got, err := MicroParse(seed)

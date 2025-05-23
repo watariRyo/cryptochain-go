@@ -11,7 +11,6 @@ import (
 )
 
 type UseCase struct {
-	ctx          context.Context
 	timeProvider tm.TimeProvider
 	repo         *repository.AllRepository
 	configs      *configs.Config
@@ -19,17 +18,16 @@ type UseCase struct {
 
 type UseCaseInterface interface {
 	GetBlock() []*model.Block
-	Mine(payload string) error
-	SyncWithRootState() error
-	Transact(req *model.Transact) (map[uuid.UUID]*model.Transaction, error)
+	Mine(ctx context.Context, payload string) error
+	SyncWithRootState(ctx context.Context) error
+	Transact(ctx context.Context, req *model.Transact) (map[uuid.UUID]*model.Transaction, error)
 	GetTransactionPool() map[uuid.UUID]*model.Transaction
-	MineTransactions() error
+	MineTransactions(ctx context.Context) error
 	GetWalletInfo() (*model.WalletInfo, error)
 }
 
-func NewUseCase(ctx context.Context, timeProvider tm.TimeProvider, repo *repository.AllRepository, configs *configs.Config) *UseCase {
+func NewUseCase(timeProvider tm.TimeProvider, repo *repository.AllRepository, configs *configs.Config) *UseCase {
 	return &UseCase{
-		ctx:          ctx,
 		timeProvider: timeProvider,
 		repo:         repo,
 		configs:      configs,

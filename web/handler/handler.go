@@ -10,7 +10,6 @@ import (
 )
 
 type Handler struct {
-	ctx     context.Context
 	configs *configs.Config
 	usecase usecase.UseCaseInterface
 }
@@ -25,9 +24,8 @@ type HandlerInterface interface {
 
 var _ HandlerInterface = (*Handler)(nil)
 
-func NewHandler(ctx context.Context, usecase *usecase.UseCase, configs *configs.Config) *Handler {
+func NewHandler(usecase *usecase.UseCase, configs *configs.Config) *Handler {
 	return &Handler{
-		ctx:     ctx,
 		usecase: usecase,
 		configs: configs,
 	}
@@ -42,7 +40,7 @@ func (handler *Handler) Mine(w http.ResponseWriter, r *http.Request) {
 
 	handler.readJSON(w, r, &requestPayload)
 
-	err := handler.usecase.Mine(requestPayload.Data)
+	err := handler.usecase.Mine(context.TODO(), requestPayload.Data)
 	if err != nil {
 		handler.errorJSON(w, err, http.StatusInternalServerError)
 		return
@@ -56,7 +54,7 @@ func (handler *Handler) Transact(w http.ResponseWriter, r *http.Request) {
 
 	handler.readJSON(w, r, &requestPayload)
 
-	pool, err := handler.usecase.Transact(&requestPayload)
+	pool, err := handler.usecase.Transact(context.TODO(), &requestPayload)
 	if err != nil {
 		handler.errorJSON(w, err, http.StatusInternalServerError)
 		return
@@ -71,7 +69,7 @@ func (handler *Handler) GetTransactionPool(w http.ResponseWriter, r *http.Reques
 }
 
 func (handler *Handler) GetMineTransactions(w http.ResponseWriter, r *http.Request) {
-	if err := handler.usecase.MineTransactions(); err != nil {
+	if err := handler.usecase.MineTransactions(context.TODO()); err != nil {
 		handler.errorJSON(w, err, http.StatusInternalServerError)
 		return
 	}

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_CryptoHashSHA256(t *testing.T) {
+func TestCryptoHashSHA256(t *testing.T) {
 	expected := "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
 	sum := CryptoHash("foo")
 
@@ -20,7 +20,7 @@ func Test_CryptoHashSHA256(t *testing.T) {
 		t.Errorf("cryptoHash mismatch. expected %v, got %v", expected, sum)
 	}
 }
-func Test_ProducesUniqueHash(t *testing.T) {
+func TestProducesUniqueHash(t *testing.T) {
 	foo := make(map[string]int)
 	bytes, _ := json.Marshal(foo)
 	originalHash := CryptoHashByte(string(bytes))
@@ -32,7 +32,7 @@ func Test_ProducesUniqueHash(t *testing.T) {
 	}
 }
 
-func Test_CharToBinary(t *testing.T) {
+func TestCharToBinary(t *testing.T) {
 	tests := []struct {
 		input    rune
 		expected int

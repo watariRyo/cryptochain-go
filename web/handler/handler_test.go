@@ -2,19 +2,20 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	mockUseCase "github.com/watariRyo/cryptochain-go/web/usecase/mock"
-	"go.uber.org/mock/gomock"
 )
 
-func Test_Mine(t *testing.T) {
+func TestMine(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mu := mockUseCase.NewMockUseCaseInterface(ctrl)
-	mu.EXPECT().Mine("Test").Times(1)
+	mu.EXPECT().Mine(context.TODO(), "Test").Times(1)
 	mu.EXPECT().GetBlock().Times(1)
 
 	testHandler := &Handler{

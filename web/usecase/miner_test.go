@@ -6,16 +6,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/watariRyo/cryptochain-go/web/domain/model"
 	"github.com/watariRyo/cryptochain-go/web/domain/repository"
 	mockRepository "github.com/watariRyo/cryptochain-go/web/domain/repository/mock"
 	"github.com/watariRyo/cryptochain-go/web/infra/redis"
-	"go.uber.org/mock/gomock"
 )
 
-func Test_MineTransactions(t *testing.T) {
-	ctx := context.Background()
+func TestMineTransactions(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mw := mockRepository.NewMockWalletsInterface(ctrl)
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
@@ -45,7 +44,7 @@ func Test_MineTransactions(t *testing.T) {
 		},
 	}
 
-	mw.EXPECT().ValidTransactoins(ctx).Return(dummyValidTransactions).Times(1)
+	mw.EXPECT().ValidTransactoins(gomock.Any()).Return(dummyValidTransactions).Times(1)
 	mw.EXPECT().NewRewardTransaction(mockTimeProvider).Times(1)
 	mw.EXPECT().GetTransaction().Return(dummyRewardTransactoin).Times(1)
 
@@ -59,15 +58,14 @@ func Test_MineTransactions(t *testing.T) {
 	mb.EXPECT().GetBlock().Times(1)
 
 	mr := mockRepository.NewMockRedisClientInterface(ctrl)
-	mr.EXPECT().Publish(ctx, string(redis.BLOCKCHAIN), gomock.Any()).MaxTimes(1)
+	mr.EXPECT().Publish(gomock.Any(), string(redis.BLOCKCHAIN), gomock.Any()).MaxTimes(1)
 
 	mw.EXPECT().ClearBlockChainTransactions(gomock.Any()).Times(1)
 
 	uc := &UseCase{
-		ctx:          ctx,
 		timeProvider: mockTimeProvider,
 		repo:         &repository.AllRepository{BlockChain: mb, RedisClient: mr, Wallets: mw},
 	}
 
-	uc.MineTransactions()
+	uc.MineTransactions(context.TODO())
 }

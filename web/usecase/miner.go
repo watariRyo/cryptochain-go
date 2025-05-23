@@ -1,13 +1,14 @@
 package usecase
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/watariRyo/cryptochain-go/web/infra/redis"
 )
 
-func (u *UseCase) MineTransactions() error {
-	validTransactions := u.repo.Wallets.ValidTransactoins(u.ctx)
+func (u *UseCase) MineTransactions(ctx context.Context) error {
+	validTransactions := u.repo.Wallets.ValidTransactoins(ctx)
 
 	err := u.repo.Wallets.NewRewardTransaction(u.timeProvider)
 	if err != nil {
@@ -27,7 +28,7 @@ func (u *UseCase) MineTransactions() error {
 		return err
 	}
 
-	go u.repo.RedisClient.Publish(u.ctx, string(redis.BLOCKCHAIN), string(broadcastChain))
+	go u.repo.RedisClient.Publish(ctx, string(redis.BLOCKCHAIN), string(broadcastChain))
 
 	u.repo.Wallets.ClearBlockChainTransactions(chain)
 

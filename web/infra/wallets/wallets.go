@@ -9,7 +9,6 @@ import (
 )
 
 type Wallets struct {
-	ctx             context.Context
 	Wallet          *model.Wallet
 	Transaction     *model.Transaction
 	TransactionPool map[uuid.UUID]*model.Transaction
@@ -19,7 +18,6 @@ var _ repository.WalletsInterface = (*Wallets)(nil)
 
 func NewWallets(ctx context.Context, wallet *model.Wallet, transaction *model.Transaction) *Wallets {
 	return &Wallets{
-		ctx:             ctx,
 		Wallet:          wallet,
 		Transaction:     transaction,
 		TransactionPool: make(map[uuid.UUID]*model.Transaction),

@@ -27,7 +27,6 @@ var channels = []string{string(TEST), string(BLOCKCHAIN), string(TRANSACTION)}
 // パブリッシャーとサブスクライバーの両方を宣言する理由は、
 // PubSubのインスタンスがアプリケーションで両方の役割を果たせるようにするため
 type RedisClient struct {
-	ctx        context.Context
 	publisher  *redis.Client
 	subscriber *redis.PubSub
 	blockChain *block.BlockChain
@@ -81,13 +80,13 @@ func (c *RedisClient) Subscribe(ctx context.Context, tm time.TimeProvider) {
 			if BLOCKCHAIN == CHANNELS(msg.Channel) {
 				payload := []byte(msg.Payload)
 				validTransactionDataFn := c.wallets.ValidTransactionData
-				c.blockChain.UnmarshalAndReplaceBlock(payload, tm, c.wallets.ClearBlockChainTransactions, validTransactionDataFn)
+				c.blockChain.UnmarshalAndReplaceBlock(ctx, payload, tm, c.wallets.ClearBlockChainTransactions, validTransactionDataFn)
 			}
 			if TRANSACTION == CHANNELS(msg.Channel) {
 				payload := []byte(msg.Payload)
 				var payloadTransaction *model.Transaction
 				if err := json.Unmarshal(payload, &payloadTransaction); err != nil {
-					logger.Errorf(c.ctx, "Could not unmarshal block chain. %v", err)
+					logger.Errorf(ctx, "Could not unmarshal block chain. %v", err)
 				}
 
 				c.wallets.SetTransaction(payloadTransaction)
@@ -97,11 +96,11 @@ func (c *RedisClient) Subscribe(ctx context.Context, tm time.TimeProvider) {
 }
 
 func (c *RedisClient) Publish(ctx context.Context, channel, messages string) {
-	c.subscriber.Unsubscribe(c.ctx, channel)
+	c.subscriber.Unsubscribe(ctx, channel)
 	err := c.publisher.Publish(ctx, channel, messages).Err()
-	c.subscriber.Subscribe(c.ctx, channel)
+	c.subscriber.Subscribe(ctx, channel)
 	if err != nil {
-		logger.Errorf(c.ctx, "Error publishing message: %v\n", err)
+		logger.Errorf(ctx, "Error publishing message: %v\n", err)
 		return
 	}
 }

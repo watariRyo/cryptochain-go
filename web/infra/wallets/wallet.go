@@ -1,6 +1,7 @@
 package wallets
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/rand"
 	"encoding/json"
@@ -81,7 +82,7 @@ func (ww *Wallets) CaluculateBalance(chain []*model.Block, address string) (int,
 	}
 }
 
-func (ww *Wallets) ValidTransactionData(originalChain []*model.Block, chain []*model.Block) bool {
+func (ww *Wallets) ValidTransactionData(ctx context.Context, originalChain []*model.Block, chain []*model.Block) bool {
 	for i := 1; i < len(chain); i++ {
 		block := chain[i]
 		rewardTransactionCount := 0
@@ -98,34 +99,34 @@ func (ww *Wallets) ValidTransactionData(originalChain []*model.Block, chain []*m
 				rewardTransactionCount += 1
 
 				if rewardTransactionCount > 1 {
-					logger.Errorf(ww.ctx, "Miner reward exceed limit")
+					logger.Errorf(ctx, "Miner reward exceed limit")
 					return false
 				}
 
 				for _, value := range tr.OutputMap {
 					if value != MINING_REWARD {
-						logger.Errorf(ww.ctx, "Miner reward amount is invalid")
+						logger.Errorf(ctx, "Miner reward amount is invalid")
 						return false
 					}
 				}
 			} else {
-				if !ww.validTransaction(ww.ctx, tr) {
-					logger.Errorf(ww.ctx, "Invalid Transaction Data")
+				if !ww.validTransaction(ctx, tr) {
+					logger.Errorf(ctx, "Invalid Transaction Data")
 					return false
 				}
 
 				trueBalance, err := ww.CaluculateBalance(chain[0:i], tr.Input.Address)
 				if err != nil {
-					logger.Errorf(ww.ctx, "Failed to CalculateBalance")
+					logger.Errorf(ctx, "Failed to CalculateBalance")
 					return false
 				}
 				if tr.Input.Amount != trueBalance {
-					logger.Errorf(ww.ctx, "Invalid input amount. expected: %d got: %d", trueBalance, tr.Input.Amount)
+					logger.Errorf(ctx, "Invalid input amount. expected: %d got: %d", trueBalance, tr.Input.Amount)
 					return false
 				}
 
 				if _, ok := transactionMap[tr.Id]; ok {
-					logger.Errorf(ww.ctx, "An identical transaction appears more than once in the block")
+					logger.Errorf(ctx, "An identical transaction appears more than once in the block")
 					return false
 				} else {
 					transactionMap[tr.Id] = true

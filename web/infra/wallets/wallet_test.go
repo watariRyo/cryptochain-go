@@ -11,7 +11,7 @@ import (
 	"github.com/watariRyo/cryptochain-go/web/infra/block"
 )
 
-func Test_SigningData(t *testing.T) {
+func TestSigningData(t *testing.T) {
 	input := "data"
 	w, err := NewWallet()
 	if err != nil {
@@ -40,7 +40,7 @@ func Test_SigningData(t *testing.T) {
 	})
 }
 
-func Test_CreateTrunsaction(t *testing.T) {
+func TestCreateTrunsaction(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 	t.Run("the amount exceeds the balanace", func(t *testing.T) {
@@ -78,7 +78,7 @@ func Test_CreateTrunsaction(t *testing.T) {
 		recipient := "foo-recipient"
 
 		// calls CalculateBalance
-		blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+		blockChain := block.NewBlockChain(mockTimeProvider)
 		err := wallets.CreateTransaction(recipient, amount, blockChain.GetBlock(), mockTimeProvider)
 		if err != nil {
 			t.Errorf("Something went wrong at CreateTransaction")
@@ -94,7 +94,7 @@ func Test_CreateTrunsaction(t *testing.T) {
 		recipient := "foo-recipient"
 
 		// calls CalculateBalance
-		blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+		blockChain := block.NewBlockChain(mockTimeProvider)
 		err := wallets.CreateTransaction(recipient, -1, blockChain.GetBlock(), mockTimeProvider)
 		if err == nil {
 			t.Errorf("CreateTransaction should be return err when amount is less than zero")
@@ -106,7 +106,7 @@ func Test_CreateTrunsaction(t *testing.T) {
 	})
 }
 
-func Test_CaluculateBalance(t *testing.T) {
+func TestCaluculateBalance(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -114,7 +114,7 @@ func Test_CaluculateBalance(t *testing.T) {
 	wallets := NewWallets(context.TODO(), w, nil)
 	wallets.CreateTransaction("hoge", 50, nil, mockTimeProvider)
 
-	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+	blockChain := block.NewBlockChain(mockTimeProvider)
 
 	// return the STARTING_BALANCE
 	gotStartingBalance, err := wallets.CaluculateBalance(blockChain.GetBlock(), wallets.Wallet.PublicKey)
@@ -126,7 +126,7 @@ func Test_CaluculateBalance(t *testing.T) {
 	}
 }
 
-func Test_CaluculateBalanceAddSomeOfAllOutputsToTheWalletBalance(t *testing.T) {
+func TestCaluculateBalanceAddSomeOfAllOutputsToTheWalletBalance(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -142,7 +142,7 @@ func Test_CaluculateBalanceAddSomeOfAllOutputsToTheWalletBalance(t *testing.T) {
 	wallets2.CreateTransaction(w.PublicKey, 60, nil, mockTimeProvider)
 	transactionTwo := *wallets2.Transaction
 
-	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+	blockChain := block.NewBlockChain(mockTimeProvider)
 
 	var transactions []*model.Transaction
 	transactions = append(transactions, &transactionOne, &transactionTwo)
@@ -159,7 +159,7 @@ func Test_CaluculateBalanceAddSomeOfAllOutputsToTheWalletBalance(t *testing.T) {
 	}
 }
 
-func Test_OutputAmountOfRecentTransaction(t *testing.T) {
+func TestOutputAmountOfRecentTransaction(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
@@ -170,7 +170,7 @@ func Test_OutputAmountOfRecentTransaction(t *testing.T) {
 	var transactions []*model.Transaction
 	transactions = append(transactions, wallets.Transaction)
 
-	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+	blockChain := block.NewBlockChain(mockTimeProvider)
 	json, _ := json.Marshal(transactions)
 	blockChain.AddBlock(string(json), mockTimeProvider)
 
@@ -195,7 +195,7 @@ func Test_OutputNextToAndAfterRecentTransaction(t *testing.T) {
 
 	recentTransaction := wallets.Transaction
 
-	blockChain := block.NewBlockChain(context.TODO(), mockTimeProvider)
+	blockChain := block.NewBlockChain(mockTimeProvider)
 
 	wallets.NewRewardTransaction(mockTimeProvider)
 	sameBlockTransaction := wallets.Transaction
@@ -219,13 +219,13 @@ func Test_OutputNextToAndAfterRecentTransaction(t *testing.T) {
 }
 
 // import cycle errorでblock側に実装できない
-func Test_ValidTransactoinData(t *testing.T) {
+func TestValidTransactoinData(t *testing.T) {
 	mockTime := time.Date(2023, 12, 1, 12, 0, 0, 0, time.Local)
 	mockTimeProvider := &MockTimeProvider{MockTime: mockTime}
 
 	t.Run("return true", func(t *testing.T) {
-		blockChain := block.NewBlockChain(context.Background(), mockTimeProvider)
-		newChain := block.NewBlockChain(context.Background(), mockTimeProvider)
+		blockChain := block.NewBlockChain(mockTimeProvider)
+		newChain := block.NewBlockChain(mockTimeProvider)
 
 		wallet, _ := NewWallet()
 		wallets := NewWallets(context.TODO(), wallet, nil)
@@ -239,14 +239,14 @@ func Test_ValidTransactoinData(t *testing.T) {
 		bytesValidTransactions, _ := json.Marshal(validTransactions)
 		newChain.AddBlock(string(bytesValidTransactions), mockTimeProvider)
 
-		if !wallets.ValidTransactionData(blockChain.GetBlock(), newChain.GetBlock()) {
+		if !wallets.ValidTransactionData(context.TODO(), blockChain.GetBlock(), newChain.GetBlock()) {
 			t.Errorf("newChain transactions should be valid. but false")
 		}
 	})
 
 	t.Run("return false. multiple rewards", func(t *testing.T) {
-		blockChain := block.NewBlockChain(context.Background(), mockTimeProvider)
-		newChain := block.NewBlockChain(context.Background(), mockTimeProvider)
+		blockChain := block.NewBlockChain(mockTimeProvider)
+		newChain := block.NewBlockChain(mockTimeProvider)
 
 		wallet, _ := NewWallet()
 		wallets := NewWallets(context.TODO(), wallet, nil)
@@ -261,14 +261,14 @@ func Test_ValidTransactoinData(t *testing.T) {
 		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
 		newChain.AddBlock(string(bytesValidTransactions), mockTimeProvider)
 
-		if wallets.ValidTransactionData(blockChain.GetBlock(), newChain.GetBlock()) {
+		if wallets.ValidTransactionData(context.TODO(), blockChain.GetBlock(), newChain.GetBlock()) {
 			t.Errorf("multiple rewards should be false")
 		}
 	})
 
 	t.Run("return false. data has at least one malformed output. and the transaction is not a reward transaction", func(t *testing.T) {
-		blockChain := block.NewBlockChain(context.Background(), mockTimeProvider)
-		newChain := block.NewBlockChain(context.Background(), mockTimeProvider)
+		blockChain := block.NewBlockChain(mockTimeProvider)
+		newChain := block.NewBlockChain(mockTimeProvider)
 
 		wallet, _ := NewWallet()
 		wallets := NewWallets(context.TODO(), wallet, nil)
@@ -284,14 +284,14 @@ func Test_ValidTransactoinData(t *testing.T) {
 		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
 		newChain.AddBlock(string(bytesValidTransactions), mockTimeProvider)
 
-		if wallets.ValidTransactionData(blockChain.GetBlock(), newChain.GetBlock()) {
+		if wallets.ValidTransactionData(context.TODO(), blockChain.GetBlock(), newChain.GetBlock()) {
 			t.Errorf("malformed outputMap should be false")
 		}
 	})
 
 	t.Run("return false. invalid transaction is a reward transaction", func(t *testing.T) {
-		blockChain := block.NewBlockChain(context.Background(), mockTimeProvider)
-		newChain := block.NewBlockChain(context.Background(), mockTimeProvider)
+		blockChain := block.NewBlockChain(mockTimeProvider)
+		newChain := block.NewBlockChain(mockTimeProvider)
 
 		wallet, _ := NewWallet()
 		wallets := NewWallets(context.TODO(), wallet, nil)
@@ -307,14 +307,14 @@ func Test_ValidTransactoinData(t *testing.T) {
 		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
 		newChain.AddBlock(string(bytesValidTransactions), mockTimeProvider)
 
-		if wallets.ValidTransactionData(blockChain.GetBlock(), newChain.GetBlock()) {
+		if wallets.ValidTransactionData(context.TODO(), blockChain.GetBlock(), newChain.GetBlock()) {
 			t.Errorf("invalid transaction is a reward transaction. but true")
 		}
 	})
 
 	t.Run("return false. the transaction data has at least one malformed input", func(t *testing.T) {
-		blockChain := block.NewBlockChain(context.Background(), mockTimeProvider)
-		newChain := block.NewBlockChain(context.Background(), mockTimeProvider)
+		blockChain := block.NewBlockChain(mockTimeProvider)
+		newChain := block.NewBlockChain(mockTimeProvider)
 
 		wallet, _ := NewWallet()
 		wallets := NewWallets(context.TODO(), wallet, nil)
@@ -349,14 +349,14 @@ func Test_ValidTransactoinData(t *testing.T) {
 		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
 		newChain.AddBlock(string(bytesValidTransactions), mockTimeProvider)
 
-		if wallets.ValidTransactionData(blockChain.GetBlock(), newChain.GetBlock()) {
+		if wallets.ValidTransactionData(context.TODO(), blockChain.GetBlock(), newChain.GetBlock()) {
 			t.Errorf("should be false the transaction data has at least one malformed input. but true")
 		}
 	})
 
 	t.Run("return false. a block contains multiple identical transactions", func(t *testing.T) {
-		blockChain := block.NewBlockChain(context.Background(), mockTimeProvider)
-		newChain := block.NewBlockChain(context.Background(), mockTimeProvider)
+		blockChain := block.NewBlockChain(mockTimeProvider)
+		newChain := block.NewBlockChain(mockTimeProvider)
 
 		wallet, _ := NewWallet()
 		wallets := NewWallets(context.TODO(), wallet, nil)
@@ -370,7 +370,7 @@ func Test_ValidTransactoinData(t *testing.T) {
 		bytesValidTransactions, _ := json.Marshal(invalidTransactions)
 		newChain.AddBlock(string(bytesValidTransactions), mockTimeProvider)
 
-		if wallets.ValidTransactionData(blockChain.GetBlock(), newChain.GetBlock()) {
+		if wallets.ValidTransactionData(context.TODO(), blockChain.GetBlock(), newChain.GetBlock()) {
 			t.Errorf("should be false a block contains multiple identical transactions. but true")
 		}
 	})

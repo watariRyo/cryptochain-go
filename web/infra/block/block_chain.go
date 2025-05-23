@@ -17,16 +17,14 @@ import (
 )
 
 type BlockChain struct {
-	ctx   context.Context
 	block []*model.Block
 }
 
 var _ repository.BlockChainInterface = (*BlockChain)(nil)
 
-func NewBlockChain(ctx context.Context, tp tm.TimeProvider) *BlockChain {
+func NewBlockChain(tp tm.TimeProvider) *BlockChain {
 	genesis := newGenesisBlock(tp.NowMicroString())
 	blockChain := &BlockChain{
-		ctx:   ctx,
 		block: []*model.Block{genesis},
 	}
 
@@ -98,24 +96,23 @@ func (bc *BlockChain) isValidDifficulty(difficulty int, blockHash string) bool {
 	return true
 }
 
-func (bc *BlockChain) ReplaceChain(block []*model.Block, tm time.TimeProvider, validTransactionDataFn func(param1 []*model.Block, param2 []*model.Block) bool) {
+func (bc *BlockChain) ReplaceChain(ctx context.Context, block []*model.Block, tm time.TimeProvider, validTransactionDataFn func(ctx context.Context, param1 []*model.Block, param2 []*model.Block) bool) {
 	if len(block) <= len(bc.block) {
-		logger.Warnf(bc.ctx, "The incoming chain must be longer.")
+		logger.Warnf(ctx, "The incoming chain must be longer.")
 		return
 	}
 
 	checkChain := &BlockChain{
-		ctx:   bc.ctx,
 		block: block,
 	}
 
 	if !checkChain.IsValidChain() {
-		logger.Errorf(bc.ctx, "The incoming chain must be valid.")
+		logger.Errorf(ctx, "The incoming chain must be valid.")
 		return
 	}
 	if validTransactionDataFn != nil {
-		if !validTransactionDataFn(bc.block, block) {
-			logger.Errorf(bc.ctx, "Invalid transaction data. did not replace chain")
+		if !validTransactionDataFn(ctx, bc.block, block) {
+			logger.Errorf(ctx, "Invalid transaction data. did not replace chain")
 			return
 		}
 	}
@@ -123,22 +120,22 @@ func (bc *BlockChain) ReplaceChain(block []*model.Block, tm time.TimeProvider, v
 	bc.block = block
 }
 
-func (bc *BlockChain) UnmarshalAndReplaceBlock(payload []byte, tm time.TimeProvider, fn func([]*model.Block) error, validTransactionDataFn func(param1 []*model.Block, param2 []*model.Block) bool) {
+func (bc *BlockChain) UnmarshalAndReplaceBlock(ctx context.Context, payload []byte, tm time.TimeProvider, fn func([]*model.Block) error, validTransactionDataFn func(ctx context.Context, param1 []*model.Block, param2 []*model.Block) bool) {
 	var payloadBlock []*model.Block
 	if err := json.Unmarshal(payload, &payloadBlock); err != nil {
-		logger.Errorf(bc.ctx, "Could not unmarshal block chain. %v", err)
+		logger.Errorf(ctx, "Could not unmarshal block chain. %v", err)
 		return
 	}
 	subscribeChain := &BlockChain{
 		block: payloadBlock,
 	}
 
-	bc.ReplaceChain(subscribeChain.block, tm, validTransactionDataFn)
+	bc.ReplaceChain(ctx, subscribeChain.block, tm, validTransactionDataFn)
 
 	if fn != nil {
 		if err := fn(payloadBlock); err != nil {
 			// ここに渡すのはclearTransactionのみ
-			logger.Errorf(bc.ctx, "Could not clear transaction. %v", err)
+			logger.Errorf(ctx, "Could not clear transaction. %v", err)
 		}
 	}
 }
